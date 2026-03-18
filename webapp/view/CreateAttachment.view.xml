@@ -1,0 +1,210 @@
+<mvc:View
+    controllerName="zattach.zattachfe.controller.CreateAttachment"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    displayBlock="true"
+    height="100%">
+    <Page
+        id="createAttachmentPage"
+        title="Create and Link Attachment"
+        showNavButton="true"
+        navButtonPress="onCancelUpload">
+        <content>
+            <VBox id="_IDGenVBox" class="sapUiSmallMargin">
+                <Panel id="createAttachmentStep1Panel" headerText="Step 1: Upload Attachment" expandable="false">
+                    <content>
+                        <f:SimpleForm
+                            id="attachmentForm"
+                            editable="true"
+                            layout="ResponsiveGridLayout"
+                            labelSpanXL="3"
+                            labelSpanL="3"
+                            labelSpanM="3"
+                            labelSpanS="12"
+                            adjustLabelSpan="false"
+                            emptySpanXL="4"
+                            emptySpanL="4"
+                            emptySpanM="4"
+                            emptySpanS="0"
+                            columnsXL="1"
+                            columnsL="1"
+                            columnsM="1"
+                            singleContainerFullSize="false">
+                            <f:content>
+                                <Label id="_IDGenLabel" text="Title" required="true"/>
+                                <Input
+                                    id="titleInput"
+                                    value="{upload>/Title}"
+                                    placeholder="Enter attachment title"
+                                    required="true"
+                                    maxLength="255"/>
+
+                                <Label id="_IDGenLabel1" text="Active"/>
+                                <CheckBox
+                                    id="activeCheckbox"
+                                    selected="{upload>/IsActive}"/>
+
+                                <Label id="_IDGenLabel2" text="Upload File" required="true"/>
+                                <VBox id="dropZoneContainer" class="dropZoneContainer">
+                                    <core:HTML id="dropZoneHtml" content="
+                                        &lt;div id='dropZone' class='dropZone'&gt;
+                                            &lt;div class='dropZoneIcon'&gt;📁&lt;/div&gt;
+                                            &lt;div class='dropZoneText'&gt;Drag and drop your file here&lt;/div&gt;
+                                            &lt;div class='dropZoneSubText'&gt;or click to browse&lt;/div&gt;
+                                            &lt;div class='dropZoneSubText' style='margin-top: 0.5rem; color: #999;'&gt;Maximum file size: 10MB&lt;/div&gt;
+                                        &lt;/div&gt;
+                                    " afterRendering="onDropZoneRendered"/>
+
+                                    <u:FileUploader
+                                        id="createAttachmentFileUploader"
+                                        name="attachmentFile"
+                                        uploadUrl=""
+                                        uploadOnChange="false"
+                                        change="onFileChange"
+                                        visible="false"/>
+
+                                    <VBox id="filePreviewBox" visible="{= ${upload>/FileName} !== ''}">
+                                        <core:HTML id="filePreviewHtml" content="
+                                            &lt;div class='filePreviewContainer'&gt;
+                                                &lt;div class='filePreviewHeader'&gt;
+                                                    &lt;div style='display: flex; align-items: center; flex: 1;'&gt;
+                                                        &lt;div class='filePreviewIcon'&gt;📄&lt;/div&gt;
+                                                        &lt;div class='filePreviewInfo'&gt;
+                                                            &lt;div class='filePreviewName' id='previewFileName'&gt;&lt;/div&gt;
+                                                            &lt;div class='filePreviewDetails' id='previewFileDetails'&gt;&lt;/div&gt;
+                                                        &lt;/div&gt;
+                                                    &lt;/div&gt;
+                                                &lt;/div&gt;
+                                            &lt;/div&gt;
+                                        " afterRendering="onFilePreviewRendered"/>
+
+                                        <HBox id="_IDGenHBox" justifyContent="End" class="sapUiSmallMarginTop">
+                                            <Button
+                                                id="removeFileButton"
+                                                text="Remove File"
+                                                icon="sap-icon://decline"
+                                                type="Reject"
+                                                press="onRemoveFile"/>
+                                        </HBox>
+
+                                        <VBox id="_IDGenVBox1" class="sapUiSmallMarginTop">
+                                            <Title id="_IDGenTitle" text="File Details" level="H5" class="sapUiSmallMarginBottom"/>
+                                            <core:HTML id="_IDGenHTML1" content="
+                                                &lt;div class='fileInfoGrid'&gt;
+                                                    &lt;div class='fileInfoItem'&gt;
+                                                        &lt;div class='fileInfoLabel'&gt;File Name&lt;/div&gt;
+                                                        &lt;div class='fileInfoValue' id='infoFileName'&gt;&lt;/div&gt;
+                                                    &lt;/div&gt;
+                                                    &lt;div class='fileInfoItem'&gt;
+                                                        &lt;div class='fileInfoLabel'&gt;Extension&lt;/div&gt;
+                                                        &lt;div class='fileInfoValue' id='infoFileExtension'&gt;&lt;/div&gt;
+                                                    &lt;/div&gt;
+                                                    &lt;div class='fileInfoItem'&gt;
+                                                        &lt;div class='fileInfoLabel'&gt;MIME Type&lt;/div&gt;
+                                                        &lt;div class='fileInfoValue' id='infoMimeType'&gt;&lt;/div&gt;
+                                                    &lt;/div&gt;
+                                                    &lt;div class='fileInfoItem'&gt;
+                                                        &lt;div class='fileInfoLabel'&gt;File Size&lt;/div&gt;
+                                                        &lt;div class='fileInfoValue' id='infoFileSize'&gt;&lt;/div&gt;
+                                                    &lt;/div&gt;
+                                                &lt;/div&gt;
+                                            " afterRendering="onFileInfoRendered"/>
+                                        </VBox>
+                                    </VBox>
+                                </VBox>
+                            </f:content>
+                        </f:SimpleForm>
+                    </content>
+                </Panel>
+
+                <Panel id="createAttachmentStep2Panel" headerText="Step 2: Link Attachment With Business Object" class="sapUiSmallMarginTop" expandable="false">
+                    <content>
+                        <VBox id="boSelectionContainer" class="sapUiSmallMargin">
+                            <HBox id="boSelectionToolbar" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
+                                <Text id="boSelectionHint" text="Select one BO type. The app will use its BO_ID to call link_to_bo right after upload."/>
+                                <Button
+                                    id="refreshBizObjectButton"
+                                    text="Refresh BO List"
+                                    icon="sap-icon://refresh"
+                                    press="onRefreshBizObjects"
+                                    enabled="{= !${upload>/busy} &amp;&amp; !${bo>/busy}}"/>
+                            </HBox>
+
+                            <List
+                                id="boSelectionList"
+                                class="sapUiSmallMarginTop"
+                                items="{bo>/items}"
+                                mode="None"
+                                noDataText="No business objects available"
+                                busy="{bo>/busy}"
+                                growing="true"
+                                growingScrollToLoad="true">
+                                <items>
+                                    <CustomListItem id="boSelectionItem">
+                                        <HBox id="boSelectionRow" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap">
+                                            <VBox id="boSelectionTextContainer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                                                <Title id="boTypeTitle" text="{bo>BoType}" level="H5"/>
+                                                <Text id="boIdText" text="{= 'BO_ID: ' + ${bo>BoId}}"/>
+                                                <Text id="boDescriptionText" text="{bo>Description}" visible="{= !!${bo>Description}}"/>
+                                            </VBox>
+                                            <CheckBox
+                                                id="boSelectCheckbox"
+                                                selected="{bo>Selected}"
+                                                select="onBizObjectSelect"/>
+                                        </HBox>
+                                    </CustomListItem>
+                                </items>
+                            </List>
+
+                            <ObjectStatus
+                                id="selectedBoStatus"
+                                class="sapUiSmallMarginTop"
+                                text="{bo>/selectionText}"
+                                state="{= ${bo>/hasSelection} ? 'Success' : 'Warning'}"/>
+                        </VBox>
+                    </content>
+                </Panel>
+
+                <Toolbar id="_IDGenToolbar" class="sapUiSmallMarginTop">
+                    <ToolbarSpacer id="_IDGenToolbarSpacer"/>
+                    <Button
+                        id="cancelButton"
+                        text="Cancel"
+                        press="onCancelUpload"
+                        enabled="{= !${upload>/busy}}"/>
+                    <Button
+                        id="createButton"
+                        text="Create and Link Attachment"
+                        type="Emphasized"
+                        press="onCreateAttachment"
+                        enabled="{= !${upload>/busy} &amp;&amp; !${bo>/busy}}"
+                        busyIndicatorDelay="0"
+                        busy="{upload>/busy}"/>
+                </Toolbar>
+
+                <!-- Preview Section -->
+                <Panel id="_IDGenPanel"
+                    headerText="File Preview"
+                    expandable="true"
+                    expanded="false"
+                    visible="{= ${upload>/FileContent} !== ''}">
+                    <content>
+                        <VBox id="_IDGenVBox2" alignItems="Center" class="sapUiSmallMargin">
+                            <core:HTML id="_IDGenHTML"
+                                content="&lt;img src='data:{upload>/MimeType};base64,{upload>/FileContent}' style='max-width: 500px; max-height: 400px;' /&gt;"
+                                visible="{= ${upload>/MimeType}.indexOf('image') > -1}"/>
+                            <Text
+                                id="_IDGenText5"
+                                text="Preview not available for this file type"
+                                visible="{= ${upload>/MimeType}.indexOf('image') === -1}"/>
+                        </VBox>
+                    </content>
+                </Panel>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

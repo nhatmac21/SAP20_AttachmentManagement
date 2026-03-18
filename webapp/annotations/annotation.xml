@@ -1,0 +1,55 @@
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="local">
+            <!-- Custom annotations for AttachmentList -->
+            <Annotations Target="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentListType">
+                <!-- Custom Selection Fields for Filter Bar -->
+                <Annotation Term="UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>Title</PropertyPath>
+                        <PropertyPath>FileName</PropertyPath>
+                        <PropertyPath>IsActive</PropertyPath>
+                        <PropertyPath>Ernam</PropertyPath>
+                    </Collection>
+                </Annotation>
+                
+                <!-- Custom Identification Section -->
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="Title"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="FileName"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="CurrentVersion"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="IsActive"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            
+            <!-- Custom Field Group for better organization -->
+            <Annotations Target="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentListType/FileName">
+                <Annotation Term="Common.Label" String="File Name"/>
+            </Annotations>
+            
+            <Annotations Target="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentListType/Title">
+                <Annotation Term="Common.Label" String="Title"/>
+            </Annotations>
+            
+            <Annotations Target="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentListType/FileSize">
+                <Annotation Term="Common.Label" String="Size (bytes)"/>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

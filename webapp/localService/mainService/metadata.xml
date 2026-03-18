@@ -1,0 +1,870 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="SAP__common" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="Org.OData.Measures.V1" Alias="SAP__measures" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CORE',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="Org.OData.Core.V1" Alias="SAP__core" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="SAP__capabilities" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="SAP__aggregation" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="Org.OData.Validation.V1" Alias="SAP__validation" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="SAP__UI" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_HTML5',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.HTML5.v1" Alias="SAP__HTML5" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PDF',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.PDF.v1" Alias="SAP__PDF" />
+  </edmx:Reference>
+  <edmx:Reference Uri="/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_SESSION',Version='0001',SAP__Origin='LOCAL')/$value">
+    <edmx:Include Namespace="com.sap.vocabularies.Session.v1" Alias="SAP__session" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="com.sap.gateway.srvd.zui_attach_srv.v0001" Alias="SAP__self">
+      <Annotation Term="SAP__core.SchemaVersion" String="1.0.0" />
+      <EntityType Name="AttachmentVersionsType">
+        <Key>
+          <PropertyRef Name="FileId" />
+          <PropertyRef Name="VersionNo" />
+        </Key>
+        <Property Name="FileId" Type="Edm.Guid" Nullable="false" />
+        <Property Name="VersionNo" Type="Edm.String" Nullable="false" MaxLength="3" />
+        <Property Name="FileName" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="FileExtension" Type="Edm.String" Nullable="false" MaxLength="10" />
+        <Property Name="MimeType" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="FileSize" Type="Edm.Int32" Nullable="false" />
+        <Property Name="FileContent" Type="Edm.String" Nullable="false" />
+        <Property Name="Erdat" Type="Edm.Date" />
+        <Property Name="Erzet" Type="Edm.TimeOfDay" Nullable="false" />
+        <Property Name="Ernam" Type="Edm.String" Nullable="false" MaxLength="12" />
+        <Property Name="__EntityControl" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.EntityControl" />
+        <Property Name="SAP__Messages" Type="Collection(com.sap.gateway.srvd.zui_attach_srv.v0001.SAP__Message)" Nullable="false" />
+        <NavigationProperty Name="_Attachment" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" Partner="_Versions">
+          <ReferentialConstraint Property="FileId" ReferencedProperty="FileId" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="AttachmentsType">
+        <Key>
+          <PropertyRef Name="FileId" />
+        </Key>
+        <Property Name="FileId" Type="Edm.Guid" Nullable="false" />
+        <Property Name="Title" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="CurrentVersion" Type="Edm.String" Nullable="false" MaxLength="3" />
+        <Property Name="IsActive" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="Erdat" Type="Edm.Date" />
+        <Property Name="Erzet" Type="Edm.TimeOfDay" Nullable="false" />
+        <Property Name="Ernam" Type="Edm.String" Nullable="false" MaxLength="12" />
+        <Property Name="Aedat" Type="Edm.Date" />
+        <Property Name="Aezet" Type="Edm.TimeOfDay" Nullable="false" />
+        <Property Name="Aenam" Type="Edm.String" Nullable="false" MaxLength="12" />
+        <Property Name="EditLock" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="__CreateByAssociationControl" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsCbAControl" />
+        <Property Name="__EntityControl" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.EntityControl" />
+        <Property Name="__OperationControl" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsOperationControl" />
+        <Property Name="SAP__Messages" Type="Collection(com.sap.gateway.srvd.zui_attach_srv.v0001.SAP__Message)" Nullable="false" />
+        <NavigationProperty Name="_Versions" Type="Collection(com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentVersionsType)" Partner="_Attachment">
+          <OnDelete Action="Cascade" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="AttachmentListType">
+        <Key>
+          <PropertyRef Name="FileId" />
+        </Key>
+        <Property Name="FileId" Type="Edm.Guid" Nullable="false" />
+        <Property Name="VersionNo" Type="Edm.String" Nullable="false" MaxLength="3" />
+        <Property Name="FileName" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="FileExtension" Type="Edm.String" Nullable="false" MaxLength="10" />
+        <Property Name="MimeType" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="FileSize" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Erdat" Type="Edm.Date" />
+        <Property Name="Erzet" Type="Edm.TimeOfDay" Nullable="false" />
+        <Property Name="Ernam" Type="Edm.String" Nullable="false" MaxLength="12" />
+        <Property Name="Title" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="CurrentVersion" Type="Edm.String" Nullable="false" MaxLength="3" />
+        <Property Name="IsActive" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="F_Aenam" Type="Edm.String" Nullable="false" MaxLength="12" />
+      </EntityType>
+      <ComplexType Name="AttachmentsCbAControl">
+        <Property Name="_Versions" Type="Edm.Boolean" Nullable="false" />
+      </ComplexType>
+      <ComplexType Name="AttachmentsOperationControl">
+        <Property Name="deactivate" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="download_version" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="rollback_version" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="upload_att_ver" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="upload_new_version" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="view_version" Type="Edm.Boolean" Nullable="false" />
+      </ComplexType>
+      <ComplexType Name="Z_I_ATTACH_DOWNLOAD">
+        <Property Name="Erdat" Type="Edm.Date" />
+        <Property Name="Ernam" Type="Edm.String" Nullable="false" MaxLength="12" />
+        <Property Name="Erzet" Type="Edm.TimeOfDay" Nullable="false" />
+        <Property Name="FileContent" Type="Edm.Binary" Nullable="false" />
+        <Property Name="FileExtension" Type="Edm.String" Nullable="false" MaxLength="10" />
+        <Property Name="FileId" Type="Edm.Guid" />
+        <Property Name="FileName" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Property Name="FileSize" Type="Edm.Int64" Nullable="false" />
+        <Property Name="MimeType" Type="Edm.String" Nullable="false" MaxLength="128" />
+        <Property Name="VersionNo" Type="Edm.String" Nullable="false" MaxLength="3" />
+      </ComplexType>
+      <ComplexType Name="EntityControl">
+        <Property Name="Deletable" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="Updatable" Type="Edm.Boolean" Nullable="false" />
+      </ComplexType>
+      <ComplexType Name="SAP__Message">
+        <Property Name="code" Type="Edm.String" Nullable="false" />
+        <Property Name="message" Type="Edm.String" Nullable="false" />
+        <Property Name="target" Type="Edm.String" />
+        <Property Name="additionalTargets" Type="Collection(Edm.String)" Nullable="false" />
+        <Property Name="transition" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="numericSeverity" Type="Edm.Byte" Nullable="false" />
+        <Property Name="longtextUrl" Type="Edm.String" />
+      </ComplexType>
+      <Action Name="view_version" EntitySetPath="_it" IsBound="true">
+        <Parameter Name="_it" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+        <ReturnType Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+      </Action>
+      <Action Name="rollback_version" EntitySetPath="_it" IsBound="true">
+        <Parameter Name="_it" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+        <Parameter Name="TARGET_VERSION_NO" Type="Edm.String" Nullable="false" MaxLength="3" />
+        <Parameter Name="Z_COMMENT" Type="Edm.String" Nullable="false" MaxLength="100" />
+        <ReturnType Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+      </Action>
+      <Action Name="deactivate" EntitySetPath="_it" IsBound="true">
+        <Parameter Name="_it" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+        <ReturnType Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+      </Action>
+      <Action Name="upload_att_ver" EntitySetPath="_it" IsBound="true">
+        <Parameter Name="_it" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+        <Parameter Name="FILE_NAME" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Parameter Name="FILE_EXTENSION" Type="Edm.String" Nullable="false" MaxLength="10" />
+        <Parameter Name="MIME_TYPE" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Parameter Name="FILE_SIZE" Type="Edm.Int32" Nullable="false" />
+        <Parameter Name="FILE_CONTENT" Type="Edm.String" Nullable="false" />
+        <Parameter Name="TITLE" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Parameter Name="REPLACE_CURRENT" Type="Edm.Boolean" Nullable="false" />
+        <ReturnType Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+      </Action>
+      <Action Name="upload_new_version" EntitySetPath="_it" IsBound="true">
+        <Parameter Name="_it" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+        <Parameter Name="FILE_NAME" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Parameter Name="FILE_EXTENSION" Type="Edm.String" Nullable="false" MaxLength="10" />
+        <Parameter Name="MIME_TYPE" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Parameter Name="FILE_SIZE" Type="Edm.Int32" Nullable="false" />
+        <Parameter Name="FILE_CONTENT" Type="Edm.String" Nullable="false" />
+        <Parameter Name="TITLE" Type="Edm.String" Nullable="false" MaxLength="255" />
+        <Parameter Name="REPLACE_CURRENT" Type="Edm.Boolean" Nullable="false" />
+        <ReturnType Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+      </Action>
+      <Action Name="download_version" IsBound="true">
+        <Parameter Name="_it" Type="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType" Nullable="false" />
+        <ReturnType Type="com.sap.gateway.srvd.zui_attach_srv.v0001.Z_I_ATTACH_DOWNLOAD" Nullable="false" />
+      </Action>
+      <EntityContainer Name="Container">
+        <EntitySet Name="AttachmentList" EntityType="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentListType" />
+        <EntitySet Name="Attachments" EntityType="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentsType">
+          <NavigationPropertyBinding Path="_Versions" Target="AttachmentVersions" />
+        </EntitySet>
+        <EntitySet Name="AttachmentVersions" EntityType="com.sap.gateway.srvd.zui_attach_srv.v0001.AttachmentVersionsType">
+          <NavigationPropertyBinding Path="_Attachment" Target="Attachments" />
+        </EntitySet>
+      </EntityContainer>
+      <Annotations Target="SAP__self.AttachmentVersionsType/FileId">
+        <Annotation Term="SAP__core.Computed" />
+        <Annotation Term="SAP__common.Label" String="UUID" />
+        <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/VersionNo">
+        <Annotation Term="SAP__common.IsDigitSequence" />
+        <Annotation Term="SAP__common.Label" String="Version No" />
+        <Annotation Term="SAP__common.Heading" String="Version Number" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_VERNO" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/FileName">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="File Name" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_FILE_NAME" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/FileExtension">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="File Extension" />
+        <Annotation Term="SAP__common.Heading" String="File Extension" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/MimeType">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="MIME Type" />
+        <Annotation Term="SAP__common.Heading" String="File MIME Type" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_MIME_TYPE" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/Ernam">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Created By" />
+        <Annotation Term="SAP__common.QuickInfo" String="Name of Person Responsible for Creating the Object" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/__EntityControl">
+        <Annotation Term="SAP__core.Computed" />
+        <Annotation Term="SAP__UI.HiddenFilter" />
+        <Annotation Term="SAP__UI.Hidden" />
+      </Annotations>
+      <Annotations Target="SAP__self.Container/AttachmentVersions">
+        <Annotation Term="SAP__capabilities.NavigationRestrictions">
+          <Record>
+            <PropertyValue Property="RestrictedProperties">
+              <Collection>
+                <Record>
+                  <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_Attachment" />
+                  <PropertyValue Property="InsertRestrictions">
+                    <Record>
+                      <PropertyValue Property="Insertable" Bool="false" />
+                    </Record>
+                  </PropertyValue>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.SearchRestrictions">
+          <Record>
+            <PropertyValue Property="Searchable" Bool="false" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.FilterRestrictions">
+          <Record>
+            <PropertyValue Property="Filterable" Bool="true" />
+            <PropertyValue Property="FilterExpressionRestrictions">
+              <Collection>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="FileContent" />
+                  <PropertyValue Property="AllowedExpressions" String="SearchExpression" />
+                </Record>
+              </Collection>
+            </PropertyValue>
+            <PropertyValue Property="NonFilterableProperties">
+              <Collection>
+                <PropertyPath>__EntityControl</PropertyPath>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.SortRestrictions">
+          <Record>
+            <PropertyValue Property="NonSortableProperties">
+              <Collection>
+                <PropertyPath>FileContent</PropertyPath>
+                <PropertyPath>__EntityControl</PropertyPath>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.DeleteRestrictions">
+          <Record>
+            <PropertyValue Property="Deletable" Path="__EntityControl/Deletable" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.UpdateRestrictions">
+          <Record>
+            <PropertyValue Property="Updatable" Path="__EntityControl/Updatable" />
+            <PropertyValue Property="QueryOptions">
+              <Record>
+                <PropertyValue Property="SelectSupported" Bool="true" />
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__core.OptimisticConcurrency">
+          <Collection />
+        </Annotation>
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType">
+        <Annotation Term="SAP__common.Label" String="MDE - Attachment Version" />
+        <Annotation Term="SAP__UI.Facets">
+          <Collection>
+            <Record Type="SAP__UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="General" />
+              <PropertyValue Property="ID" String="General" />
+              <PropertyValue Property="Target" AnnotationPath="@SAP__UI.Identification" />
+            </Record>
+            <Record Type="SAP__UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Attachment" />
+              <PropertyValue Property="ID" String="Attachment" />
+              <PropertyValue Property="Target" AnnotationPath="_Attachment/@SAP__UI.Identification" />
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__UI.HeaderInfo">
+          <Record>
+            <PropertyValue Property="TypeName" String="Attachment Version" />
+            <PropertyValue Property="TypeNamePlural" String="Attachment Versions" />
+            <PropertyValue Property="Title">
+              <Record Type="SAP__UI.DataField">
+                <PropertyValue Property="Value" Path="FileName" />
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__UI.Identification">
+          <Collection>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileName" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erdat" />
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__UI.LineItem">
+          <Collection>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileId" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="VersionNo" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileName" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileExtension" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="MimeType" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileSize" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erdat" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erzet" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Ernam" />
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__common.Messages" Path="SAP__Messages" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Title">
+        <Annotation Term="SAP__common.Label" String="File Title" />
+        <Annotation Term="SAP__common.Heading" String="Attachment Title" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_FILE_TITLE" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/CurrentVersion">
+        <Annotation Term="SAP__common.IsDigitSequence" />
+        <Annotation Term="SAP__common.Label" String="Version No" />
+        <Annotation Term="SAP__common.Heading" String="Version Number" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_VERNO" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/IsActive">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Active" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_IS_ACTIVE" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Ernam">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Created By" />
+        <Annotation Term="SAP__common.QuickInfo" String="Name of Person Responsible for Creating the Object" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Aenam">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Changed By" />
+        <Annotation Term="SAP__common.QuickInfo" String="Name of Person Who Changed Object" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/EditLock">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Edit Lock" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_EDITLK" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/__CreateByAssociationControl">
+        <Annotation Term="SAP__core.Computed" />
+        <Annotation Term="SAP__UI.HiddenFilter" />
+        <Annotation Term="SAP__UI.Hidden" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/__EntityControl">
+        <Annotation Term="SAP__core.Computed" />
+        <Annotation Term="SAP__UI.HiddenFilter" />
+        <Annotation Term="SAP__UI.Hidden" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/__OperationControl">
+        <Annotation Term="SAP__core.Computed" />
+        <Annotation Term="SAP__UI.HiddenFilter" />
+        <Annotation Term="SAP__UI.Hidden" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/_Versions">
+        <Annotation Term="SAP__common.Composition" />
+      </Annotations>
+      <Annotations Target="SAP__self.Container/Attachments">
+        <Annotation Term="SAP__capabilities.NavigationRestrictions">
+          <Record>
+            <PropertyValue Property="RestrictedProperties">
+              <Collection>
+                <Record>
+                  <PropertyValue Property="NavigationProperty" NavigationPropertyPath="_Versions" />
+                  <PropertyValue Property="InsertRestrictions">
+                    <Record>
+                      <PropertyValue Property="Insertable" Path="__CreateByAssociationControl/_Versions" />
+                    </Record>
+                  </PropertyValue>
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.SearchRestrictions">
+          <Record>
+            <PropertyValue Property="Searchable" Bool="false" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.FilterRestrictions">
+          <Record>
+            <PropertyValue Property="NonFilterableProperties">
+              <Collection>
+                <PropertyPath>__CreateByAssociationControl</PropertyPath>
+                <PropertyPath>__EntityControl</PropertyPath>
+                <PropertyPath>__OperationControl</PropertyPath>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.SortRestrictions">
+          <Record>
+            <PropertyValue Property="NonSortableProperties">
+              <Collection>
+                <PropertyPath>__CreateByAssociationControl</PropertyPath>
+                <PropertyPath>__EntityControl</PropertyPath>
+                <PropertyPath>__OperationControl</PropertyPath>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.DeleteRestrictions">
+          <Record>
+            <PropertyValue Property="Deletable" Path="__EntityControl/Deletable" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.UpdateRestrictions">
+          <Record>
+            <PropertyValue Property="Updatable" Path="__EntityControl/Updatable" />
+            <PropertyValue Property="QueryOptions">
+              <Record>
+                <PropertyValue Property="SelectSupported" Bool="true" />
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__core.OptimisticConcurrency">
+          <Collection />
+        </Annotation>
+      </Annotations>
+      <Annotations Target="SAP__self.view_version(SAP__self.AttachmentsType)">
+        <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/view_version" />
+      </Annotations>
+      <Annotations Target="SAP__self.rollback_version(SAP__self.AttachmentsType)">
+        <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/rollback_version" />
+      </Annotations>
+      <Annotations Target="SAP__self.deactivate(SAP__self.AttachmentsType)">
+        <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/deactivate" />
+      </Annotations>
+      <Annotations Target="SAP__self.upload_att_ver(SAP__self.AttachmentsType)">
+        <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/upload_att_ver" />
+      </Annotations>
+      <Annotations Target="SAP__self.upload_new_version(SAP__self.AttachmentsType)">
+        <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/upload_new_version" />
+      </Annotations>
+      <Annotations Target="SAP__self.download_version(SAP__self.AttachmentsType)">
+        <Annotation Term="SAP__core.OperationAvailable" Path="_it/__OperationControl/download_version" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType">
+        <Annotation Term="SAP__common.Label" String="MDE - Attachment" />
+        <Annotation Term="SAP__UI.Facets">
+          <Collection>
+            <Record Type="SAP__UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="General" />
+              <PropertyValue Property="ID" String="General" />
+              <PropertyValue Property="Target" AnnotationPath="@SAP__UI.Identification" />
+            </Record>
+            <Record Type="SAP__UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Versions" />
+              <PropertyValue Property="ID" String="Versions" />
+              <PropertyValue Property="Target" AnnotationPath="_Versions/@SAP__UI.LineItem" />
+            </Record>
+            <Record Type="SAP__UI.ReferenceFacet">
+              <PropertyValue Property="Label" String="Audit Log" />
+              <PropertyValue Property="ID" String="Audit" />
+              <PropertyValue Property="Target" String="UI.FACET$3$">
+                <Annotation Term="SAP__core.Messages">
+                  <Collection>
+                    <Record>
+                      <PropertyValue Property="code" String="SY-530" />
+                      <PropertyValue Property="message" String="An exception was raised" />
+                      <PropertyValue Property="severity" String="error" />
+                    </Record>
+                  </Collection>
+                </Annotation>
+              </PropertyValue>
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__UI.HeaderInfo">
+          <Record>
+            <PropertyValue Property="TypeName" String="Attachment" />
+            <PropertyValue Property="TypeNamePlural" String="Attachments" />
+            <PropertyValue Property="Title">
+              <Record Type="SAP__UI.DataField">
+                <PropertyValue Property="Value" Path="Title" />
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__UI.Identification">
+          <Collection>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Title" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="CurrentVersion" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="IsActive" />
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__UI.LineItem">
+          <Collection>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Title" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="CurrentVersion" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="IsActive" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erdat" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erzet" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Ernam" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Aedat" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Aezet" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Aenam" />
+            </Record>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__common.Messages" Path="SAP__Messages" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/VersionNo">
+        <Annotation Term="SAP__common.IsDigitSequence" />
+        <Annotation Term="SAP__common.Label" String="Version No" />
+        <Annotation Term="SAP__common.Heading" String="Version Number" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_VERNO" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/FileName">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="File Name" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_FILE_NAME" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/FileExtension">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="File Extension" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/MimeType">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="MIME Type" />
+        <Annotation Term="SAP__common.Heading" String="File MIME Type" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_MIME_TYPE" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/Ernam">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Created By" />
+        <Annotation Term="SAP__common.QuickInfo" String="Name of Person Responsible for Creating the Object" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/Title">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="File Title" />
+        <Annotation Term="SAP__common.Heading" String="Attachment Title" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_FILE_TITLE" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/CurrentVersion">
+        <Annotation Term="SAP__common.IsDigitSequence" />
+        <Annotation Term="SAP__common.Label" String="Version No" />
+        <Annotation Term="SAP__common.Heading" String="Version Number" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_VERNO" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/IsActive">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Active" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_IS_ACTIVE" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/F_Aenam">
+        <Annotation Term="SAP__common.IsUpperCase" />
+        <Annotation Term="SAP__common.Label" String="Changed By" />
+        <Annotation Term="SAP__common.QuickInfo" String="Name of Person Who Changed Object" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType">
+        <Annotation Term="SAP__common.Label" String="MDE - Attachment List" />
+        <Annotation Term="SAP__UI.HeaderInfo">
+          <Record>
+            <PropertyValue Property="TypeName" String="Attachment List" />
+            <PropertyValue Property="TypeNamePlural" String="Attachment Lists" />
+            <PropertyValue Property="Title">
+              <Record Type="SAP__UI.DataField">
+                <PropertyValue Property="Value" Path="Title" />
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__UI.LineItem">
+          <Collection>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileId" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="VersionNo" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileName" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileExtension" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="MimeType" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="FileSize" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erdat" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Erzet" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Ernam" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="Title" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="CurrentVersion" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="IsActive" />
+            </Record>
+            <Record Type="SAP__UI.DataField">
+              <PropertyValue Property="Value" Path="F_Aenam" />
+            </Record>
+          </Collection>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="SAP__self.Container/AttachmentList">
+        <Annotation Term="SAP__capabilities.SearchRestrictions">
+          <Record>
+            <PropertyValue Property="Searchable" Bool="false" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.InsertRestrictions">
+          <Record>
+            <PropertyValue Property="Insertable" Bool="false" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.DeleteRestrictions">
+          <Record>
+            <PropertyValue Property="Deletable" Bool="false" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.UpdateRestrictions">
+          <Record>
+            <PropertyValue Property="Updatable" Bool="false" />
+            <PropertyValue Property="QueryOptions">
+              <Record>
+                <PropertyValue Property="SelectSupported" Bool="true" />
+              </Record>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__core.OptimisticConcurrency">
+          <Collection />
+        </Annotation>
+        <Annotation Term="SAP__capabilities.FilterRestrictions">
+          <Record>
+            <PropertyValue Property="FilterExpressionRestrictions">
+              <Collection>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="FileName" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="FileExtension" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="MimeType" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="Ernam" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="Title" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="IsActive" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+                <Record>
+                  <PropertyValue Property="Property" PropertyPath="F_Aenam" />
+                  <PropertyValue Property="AllowedExpressions" String="MultiValue" />
+                </Record>
+              </Collection>
+            </PropertyValue>
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="SAP__self.Container">
+        <Annotation Term="SAP__aggregation.ApplySupported">
+          <Record>
+            <PropertyValue Property="Transformations">
+              <Collection>
+                <String>aggregate</String>
+                <String>groupby</String>
+                <String>filter</String>
+              </Collection>
+            </PropertyValue>
+            <PropertyValue Property="Rollup" EnumMember="SAP__aggregation.RollupType/None" />
+          </Record>
+        </Annotation>
+        <Annotation Term="SAP__common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true" />
+        <Annotation Term="SAP__capabilities.FilterFunctions">
+          <Collection>
+            <String>eq</String>
+            <String>ne</String>
+            <String>gt</String>
+            <String>ge</String>
+            <String>lt</String>
+            <String>le</String>
+            <String>and</String>
+            <String>or</String>
+            <String>contains</String>
+            <String>startswith</String>
+            <String>endswith</String>
+            <String>any</String>
+            <String>all</String>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__capabilities.SupportedFormats">
+          <Collection>
+            <String>application/json</String>
+            <String>application/pdf</String>
+          </Collection>
+        </Annotation>
+        <Annotation Term="SAP__PDF.Features">
+          <Record>
+            <PropertyValue Property="DocumentDescriptionReference" String="../../../../default/iwbep/common/0001/$metadata" />
+            <PropertyValue Property="DocumentDescriptionCollection" String="MyDocumentDescriptions" />
+            <PropertyValue Property="ArchiveFormat" Bool="true" />
+            <PropertyValue Property="Border" Bool="true" />
+            <PropertyValue Property="CoverPage" Bool="true" />
+            <PropertyValue Property="FitToPage" Bool="true" />
+            <PropertyValue Property="FontName" Bool="true" />
+            <PropertyValue Property="FontSize" Bool="true" />
+            <PropertyValue Property="Margin" Bool="true" />
+            <PropertyValue Property="Signature" Bool="true" />
+            <PropertyValue Property="ResultSizeDefault" Int="20000" />
+            <PropertyValue Property="ResultSizeMaximum" Int="20000" />
+          </Record>
+        </Annotation>
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/FileSize">
+        <Annotation Term="SAP__common.Label" String="INT4" />
+        <Annotation Term="SAP__common.QuickInfo" String="4 Byte Signed Integer" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/FileContent">
+        <Annotation Term="SAP__common.Label" String="File Content" />
+        <Annotation Term="SAP__common.QuickInfo" String="ZGSP26SAP20_FILE_BIN" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/Erdat">
+        <Annotation Term="SAP__common.Label" String="Created On" />
+        <Annotation Term="SAP__common.QuickInfo" String="Record Created On" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentVersionsType/Erzet">
+        <Annotation Term="SAP__common.Label" String="Time" />
+        <Annotation Term="SAP__common.QuickInfo" String="Entry time" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/FileId">
+        <Annotation Term="SAP__common.Label" String="UUID" />
+        <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Erdat">
+        <Annotation Term="SAP__common.Label" String="Created On" />
+        <Annotation Term="SAP__common.QuickInfo" String="Record Created On" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Erzet">
+        <Annotation Term="SAP__common.Label" String="Time" />
+        <Annotation Term="SAP__common.QuickInfo" String="Entry time" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Aedat">
+        <Annotation Term="SAP__common.Label" String="Changed On" />
+        <Annotation Term="SAP__common.Heading" String="Chngd On" />
+        <Annotation Term="SAP__common.QuickInfo" String="Last Changed On" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentsType/Aezet">
+        <Annotation Term="SAP__common.Label" String="Changed at" />
+        <Annotation Term="SAP__common.Heading" String="TimeOfChng" />
+        <Annotation Term="SAP__common.QuickInfo" String="Time last change was made" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/FileId">
+        <Annotation Term="SAP__common.Label" String="UUID" />
+        <Annotation Term="SAP__common.QuickInfo" String="16 Byte UUID in 16 Bytes (Raw Format)" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/FileSize">
+        <Annotation Term="SAP__common.Label" String="INT4" />
+        <Annotation Term="SAP__common.QuickInfo" String="4 Byte Signed Integer" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/Erdat">
+        <Annotation Term="SAP__common.Label" String="Created On" />
+        <Annotation Term="SAP__common.QuickInfo" String="Record Created On" />
+      </Annotations>
+      <Annotations Target="SAP__self.AttachmentListType/Erzet">
+        <Annotation Term="SAP__common.Label" String="Time" />
+        <Annotation Term="SAP__common.QuickInfo" String="Entry time" />
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

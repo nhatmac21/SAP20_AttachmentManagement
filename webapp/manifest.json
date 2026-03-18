@@ -1,0 +1,222 @@
+{
+  "_version": "1.48.0",
+  "sap.app": {
+    "id": "zattach.zattachfe",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.20.4",
+      "toolsId": "cac4ff3b-c7b3-4404-8379-924a2bb42cf4"
+    },
+    "dataSources": {
+      "annotation": {
+        "type": "ODataAnnotation",
+        "uri": "annotations/annotation.xml",
+        "settings": {
+          "localUri": "annotations/annotation.xml"
+        }
+      },
+      "mainService": {
+        "uri": "/sap/opu/odata4/sap/zui_attach_bind/srvd/sap/zui_attach_srv/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [
+            "annotation"
+          ],
+          "localUri": "localService/mainService/metadata.xml",
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "zattachzattachfe-display": {
+          "semanticObject": "zattachzattachfe",
+          "action": "display",
+          "title": "{{appTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.96.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.layout": {},
+        "sap.f": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "zattach.zattachfe.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/dragdrop.css"
+        }
+      ]
+    },
+    "extends": {
+      "extensions": {
+       "sap.ui.controllerExtensions": {
+  "sap.fe.templates.ListReport.ListReportController#zattach.zattachfe::AttachmentListList": {
+    "controllerName": "zattach.zattachfe.ext.controller.ListReportExt"
+  },
+  "sap.fe.templates.ObjectPage.ObjectPageController#zattach.zattachfe::AttachmentListObjectPage": {
+    "controllerName": "zattach.zattachfe.ext.controller.ObjectPageExt"
+  }
+}
+      }
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.f.routing.Router"
+      },
+      "routes": [
+        {
+          "name": "AttachmentListList",
+          "pattern": ":?query:",
+          "target": [
+            "AttachmentListList"
+          ]
+        },
+        {
+          "name": "CreateAttachment",
+          "pattern": "create",
+          "target": [
+            "CreateAttachment"
+          ]
+        },
+        {
+          "name": "AttachmentListObjectPage",
+          "pattern": "Attachments({key}):?query:",
+          "target": [
+            "AttachmentListList",
+            "AttachmentListObjectPage"
+          ]
+        }
+      ],
+      "targets": {
+        "AttachmentListList": {
+          "type": "View",
+          "id": "AttachmentListList",
+          "name": "zattach.zattachfe.ext.main.Main",
+          "level": 1
+        },
+        "CreateAttachment": {
+          "type": "View",
+          "id": "createAttachmentView",
+          "name": "zattach.zattachfe.view.CreateAttachment",
+          "level": 2
+        },
+        "AttachmentListObjectPage": {
+          "type": "Component",
+          "id": "AttachmentListObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Attachments",
+              "entitySet": "Attachments",
+              "content": {
+                "header": {
+                  "actions": {
+                    "UploadNewVersion": {
+                      "press": ".extension.zattach.zattachfe.ext.controller.ObjectPageExt.onUploadNewVersion",
+                      "visible": true,
+                      "enabled": true,
+                      "text": "Upload New Version"
+                    }
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "_Versions/@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "enableExport": true
+                  },
+                  "actions": {
+                    "RollbackVersion": {
+                      "press": ".extension.zattach.zattachfe.ext.controller.ObjectPageExt.onRollbackVersion",
+                      "visible": true,
+                      "enabled": true,
+                      "text": "Rollback to This Version",
+                      "requiresSelection": true
+                    },
+                    "DownloadVersion": {
+                      "press": ".extension.zattach.zattachfe.ext.controller.ObjectPageExt.onDownloadVersion",
+                      "visible": true,
+                      "enabled": true,
+                      "text": "Download Version",
+                      "requiresSelection": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fe": {
+    "app": {
+      "enableLazyLoading": true
+    }
+  }
+}

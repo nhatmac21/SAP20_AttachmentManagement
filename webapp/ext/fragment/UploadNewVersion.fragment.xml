@@ -1,0 +1,126 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified">
+    <Dialog
+        id="uploadNewVersionDialog"
+        title="Upload New Version"
+        contentWidth="520px">
+        <content>
+            <VBox id="_IDGenVBox8" class="sapUiSmallMargin">
+                <Label id="_IDGenLabel8" text="Current Title: {Title}" class="sapUiSmallMarginBottom"/>
+                <Label id="_IDGenLabel9" text="Current Version: {CurrentVersion}" class="sapUiSmallMarginBottom"/>
+                <Title id="versionStep1Title" text="Step 1: Upload New File" level="H5" class="sapUiSmallMarginTop sapUiSmallMarginBottom"/>
+                <Label id="_IDGenLabel10" text="Select New File:" class="sapUiSmallMarginBottom"/>
+
+                <VBox id="versionDropZoneContainer" class="dropZoneContainer">
+                    <!-- Drag and Drop Zone -->
+                    <core:HTML
+                        id="versionDropZoneHtml"
+                        content="
+                            &lt;div id='versionDropZone' class='dropZone'&gt;
+                                &lt;div class='dropZoneIcon'&gt;&#128193;&lt;/div&gt;
+                                &lt;div class='dropZoneText'&gt;Drag and drop your file here&lt;/div&gt;
+                                &lt;div class='dropZoneSubText'&gt;or click to browse&lt;/div&gt;
+                                &lt;div class='dropZoneSubText' style='margin-top:0.5rem;color:#999;'&gt;Maximum file size: 10MB&lt;/div&gt;
+                            &lt;/div&gt;
+                        "
+                        afterRendering="onVersionDropZoneRendered"/>
+
+                    <!-- Hidden FileUploader triggered on click -->
+                    <u:FileUploader
+                        id="versionFileUploader"
+                        name="versionFile"
+                        uploadUrl=""
+                        uploadOnChange="false"
+                        change="onVersionFileChange"
+                        visible="false"/>
+
+                    <!-- File preview (shown after selection) -->
+                    <VBox id="versionFilePreviewBox" visible="false">
+                        <core:HTML
+                            id="versionFilePreviewHtml"
+                            content="
+                                &lt;div class='filePreviewContainer'&gt;
+                                    &lt;div class='filePreviewHeader'&gt;
+                                        &lt;div style='display:flex;align-items:center;flex:1;'&gt;
+                                            &lt;div class='filePreviewIcon'&gt;&#128196;&lt;/div&gt;
+                                            &lt;div class='filePreviewInfo'&gt;
+                                                &lt;div class='filePreviewName' id='versionPreviewFileName'&gt;&lt;/div&gt;
+                                                &lt;div class='filePreviewDetails' id='versionPreviewFileDetails'&gt;&lt;/div&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            "
+                            afterRendering="onVersionFilePreviewRendered"/>
+
+                        <HBox id="versionRemoveFileBox" justifyContent="End" class="sapUiSmallMarginTop">
+                            <Button
+                                id="versionRemoveFileButton"
+                                text="Remove File"
+                                icon="sap-icon://decline"
+                                type="Reject"
+                                press="onVersionRemoveFile"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <Title id="versionStep2Title" text="Step 2: Link Attachment With Business Object" level="H5" class="sapUiMediumMarginTop sapUiSmallMarginBottom"/>
+                <Text id="versionBoHint" text="Select one BO type. After the new version is uploaded, the app will call link_to_bo with the BO_ID you choose."/>
+
+                <HBox id="versionBoToolbar" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiSmallMarginTop">
+                    <ObjectStatus
+                        id="versionSelectedBoStatus"
+                        text="{bo>/selectionText}"
+                        state="{= ${bo>/hasSelection} ? 'Success' : 'Warning'}"/>
+                    <Button
+                        id="versionRefreshBoButton"
+                        text="Refresh BO List"
+                        icon="sap-icon://refresh"
+                        press="onRefreshVersionBizObjects"
+                        enabled="{= !${bo>/busy}}"/>
+                </HBox>
+
+                <List
+                    id="versionBoSelectionList"
+                    class="sapUiSmallMarginTop"
+                    items="{bo>/items}"
+                    mode="None"
+                    noDataText="No business objects available"
+                    busy="{bo>/busy}"
+                    growing="true"
+                    growingScrollToLoad="true">
+                    <items>
+                        <CustomListItem id="versionBoSelectionItem">
+                            <HBox id="versionBoSelectionRow" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap">
+                                <VBox id="versionBoTextContainer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                                    <Title id="versionBoTypeTitle" text="{bo>BoType}" level="H5"/>
+                                    <Text id="versionBoIdText" text="{= 'BO_ID: ' + ${bo>BoId}}"/>
+                                    <Text id="versionBoDescriptionText" text="{bo>Description}" visible="{= !!${bo>Description}}"/>
+                                </VBox>
+                                <CheckBox
+                                    id="versionBoSelectCheckbox"
+                                    selected="{bo>Selected}"
+                                    select="onVersionBizObjectSelect"/>
+                            </HBox>
+                        </CustomListItem>
+                    </items>
+                </List>
+            </VBox>
+        </content>
+        <beginButton>
+            <Button id="_IDGenButton"
+                text="Upload"
+                type="Emphasized"
+                enabled="{= !${bo>/busy} &amp;&amp; ${bo>/hasSelection}}"
+                press=".onUploadDialogConfirm"/>
+        </beginButton>
+        <endButton>
+            <Button id="_IDGenButton1"
+                text="Cancel"
+                enabled="{= !${bo>/busy}}"
+                press=".onUploadDialogCancel"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

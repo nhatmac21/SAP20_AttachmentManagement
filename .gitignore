@@ -1,0 +1,10 @@
+.DS_Store
+/dist/
+/node_modules/
+fiori-tools.log
+*.db
+*.orig
+ui5-*.yaml
+ui5-local.yaml
+.env
+credentials.json

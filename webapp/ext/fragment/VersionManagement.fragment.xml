@@ -1,0 +1,21 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <VBox id="_IDGenVBox9" class="sapUiSmallMargin">
+        <Toolbar id="_IDGenToolbar2">
+            <Title id="_IDGenTitle1" text="Upload New Version" level="H4"/>
+            <ToolbarSpacer id="_IDGenToolbarSpacer2"/>
+        </Toolbar>
+        <HBox id="_IDGenHBox8" class="sapUiSmallMargin">
+            <VBox id="_IDGenVBox10" class="sapUiSmallMarginEnd">
+                <Label id="_IDGenLabel11" text="Current File: {FileName}"/>
+                <Label id="_IDGenLabel12" text="Current Version: {CurrentVersion}"/>
+            </VBox>
+            <Button id="_IDGenButton2" 
+                text="Upload New Version" 
+                type="Emphasized"
+                press=".handlers.onUploadNewVersion"
+                icon="sap-icon://upload"/>
+        </HBox>
+    </VBox>
+</core:FragmentDefinition>
