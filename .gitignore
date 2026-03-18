@@ -8,3 +8,4 @@ ui5-*.yaml
 ui5-local.yaml
 .env
 credentials.json
+ui5.yaml
