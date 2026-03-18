@@ -182,7 +182,7 @@ sap.ui.define([
             oBoModel.setProperty("/hasSelection", true);
             oBoModel.setProperty("/selectedBoId", oBizObject.BoId);
             oBoModel.setProperty("/selectedBoType", oBizObject.BoType);
-            oBoModel.setProperty("/selectionText", "Selected: " + oBizObject.BoType + " (BO_ID: " + oBizObject.BoId + ")");
+            oBoModel.setProperty("/selectionText", "Selected: " + oBizObject.BoType);
         },
 
         _clearVersionSelectedBizObject: function() {
@@ -202,6 +202,8 @@ sap.ui.define([
 
         _resetVersionUploadState: function() {
             this._oVersionFile = null;
+            this._sVersionPreviewDataUrl = "";
+            this._sVersionPreviewMimeType = "";
             if (this._oUploadDialog) {
                 var oPreview = this._getUploadDialogControl("versionFilePreviewBox");
                 var oFileUploader = this._getUploadDialogControl("versionFileUploader");
@@ -216,6 +218,8 @@ sap.ui.define([
 
                 this._oUploadDialog.setBusy(false);
             }
+
+            this._updateVersionContentPreview();
 
             this._clearVersionSelectedBizObject();
         },
@@ -296,6 +300,59 @@ sap.ui.define([
 
             // Update preview DOM elements
             this._updateVersionFilePreview(oFile);
+            this._readVersionPreviewContent(oFile);
+        },
+
+        _readVersionPreviewContent: function(oFile) {
+            var that = this;
+            var oReader = new FileReader();
+
+            oReader.onload = function(oEvent) {
+                that._sVersionPreviewDataUrl = oEvent.target.result || "";
+                that._sVersionPreviewMimeType = oFile.type || "";
+                that._updateVersionContentPreview();
+            };
+
+            oReader.onerror = function() {
+                that._sVersionPreviewDataUrl = "";
+                that._sVersionPreviewMimeType = "";
+                that._updateVersionContentPreview();
+            };
+
+            oReader.readAsDataURL(oFile);
+        },
+
+        _updateVersionContentPreview: function() {
+            var oPreviewBox = this._getUploadDialogControl("versionContentPreviewBox");
+            var oImagePreview = this._getUploadDialogControl("versionImagePreview");
+            var oNoPreviewText = this._getUploadDialogControl("versionNoPreviewText");
+            var sPreviewDataUrl = this._sVersionPreviewDataUrl || "";
+            var sMimeType = (this._sVersionPreviewMimeType || "").toLowerCase();
+            var bIsImage = sMimeType.indexOf("image/") === 0;
+
+            if (!oPreviewBox || !oImagePreview || !oNoPreviewText) {
+                return;
+            }
+
+            if (!sPreviewDataUrl) {
+                oPreviewBox.setVisible(false);
+                oImagePreview.setVisible(false);
+                oNoPreviewText.setVisible(false);
+                return;
+            }
+
+            oPreviewBox.setVisible(true);
+
+            if (bIsImage) {
+                oImagePreview.setContent("<img src='" + sPreviewDataUrl + "' style='max-width:100%; max-height:220px;' />");
+                oImagePreview.setVisible(true);
+                oNoPreviewText.setVisible(false);
+                return;
+            }
+
+            oImagePreview.setContent("");
+            oImagePreview.setVisible(false);
+            oNoPreviewText.setVisible(true);
         },
 
         _updateVersionFilePreview: function(oFile) {
@@ -322,6 +379,8 @@ sap.ui.define([
 
         onVersionRemoveFile: function() {
             this._oVersionFile = null;
+            this._sVersionPreviewDataUrl = "";
+            this._sVersionPreviewMimeType = "";
             // Hide preview box
             var oPreview = this._getUploadDialogControl("versionFilePreviewBox");
             var oFileUploader = this._getUploadDialogControl("versionFileUploader");
@@ -333,6 +392,8 @@ sap.ui.define([
             if (oFileUploader) {
                 oFileUploader.clear();
             }
+
+            this._updateVersionContentPreview();
         },
 
         onUploadDialogConfirm: function() {

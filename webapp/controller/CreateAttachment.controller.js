@@ -152,7 +152,7 @@ sap.ui.define([
             oBizObjectModel.setProperty("/hasSelection", true);
             oBizObjectModel.setProperty("/selectedBoId", oBizObject.BoId);
             oBizObjectModel.setProperty("/selectedBoType", oBizObject.BoType);
-            oBizObjectModel.setProperty("/selectionText", "Selected: " + oBizObject.BoType + " (BO_ID: " + oBizObject.BoId + ")");
+            oBizObjectModel.setProperty("/selectionText", "Selected: " + oBizObject.BoType);
         },
 
         _clearSelectedBizObject: function () {

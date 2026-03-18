@@ -125,7 +125,7 @@
                     <content>
                         <VBox id="boSelectionContainer" class="sapUiSmallMargin">
                             <HBox id="boSelectionToolbar" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
-                                <Text id="boSelectionHint" text="Select one BO type. The app will use its BO_ID to call link_to_bo right after upload."/>
+                                <Text id="boSelectionHint" text="Select one BO type. The app will link attachment to the selected business object right after upload."/>
                                 <Button
                                     id="refreshBizObjectButton"
                                     text="Refresh BO List"
@@ -148,7 +148,6 @@
                                         <HBox id="boSelectionRow" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap">
                                             <VBox id="boSelectionTextContainer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
                                                 <Title id="boTypeTitle" text="{bo>BoType}" level="H5"/>
-                                                <Text id="boIdText" text="{= 'BO_ID: ' + ${bo>BoId}}"/>
                                                 <Text id="boDescriptionText" text="{bo>Description}" visible="{= !!${bo>Description}}"/>
                                             </VBox>
                                             <CheckBox

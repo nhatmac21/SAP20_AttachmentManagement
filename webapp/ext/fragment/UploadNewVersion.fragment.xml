@@ -67,7 +67,7 @@
                 </VBox>
 
                 <Title id="versionStep2Title" text="Step 2: Link Attachment With Business Object" level="H5" class="sapUiMediumMarginTop sapUiSmallMarginBottom"/>
-                <Text id="versionBoHint" text="Select one BO type. After the new version is uploaded, the app will call link_to_bo with the BO_ID you choose."/>
+                <Text id="versionBoHint" text="Select one BO type. After the new version is uploaded, the app will link it to the selected business object."/>
 
                 <HBox id="versionBoToolbar" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiSmallMarginTop">
                     <ObjectStatus
@@ -96,7 +96,6 @@
                             <HBox id="versionBoSelectionRow" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap">
                                 <VBox id="versionBoTextContainer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
                                     <Title id="versionBoTypeTitle" text="{bo>BoType}" level="H5"/>
-                                    <Text id="versionBoIdText" text="{= 'BO_ID: ' + ${bo>BoId}}"/>
                                     <Text id="versionBoDescriptionText" text="{bo>Description}" visible="{= !!${bo>Description}}"/>
                                 </VBox>
                                 <CheckBox
@@ -107,6 +106,24 @@
                         </CustomListItem>
                     </items>
                 </List>
+
+                <Panel
+                    id="versionContentPreviewBox"
+                    headerText="File Preview"
+                    expandable="true"
+                    expanded="false"
+                    visible="false"
+                    class="sapUiSmallMarginTop">
+                    <content>
+                        <VBox id="versionContentPreviewContainer" alignItems="Center" class="sapUiSmallMargin">
+                            <core:HTML id="versionImagePreview" visible="false"/>
+                            <Text
+                                id="versionNoPreviewText"
+                                text="Preview not available for this file type"
+                                visible="false"/>
+                        </VBox>
+                    </content>
+                </Panel>
             </VBox>
         </content>
         <beginButton>
