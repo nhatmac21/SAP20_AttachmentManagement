@@ -67,45 +67,21 @@
                 </VBox>
 
                 <Title id="versionStep2Title" text="Step 2: Link Attachment With Business Object" level="H5" class="sapUiMediumMarginTop sapUiSmallMarginBottom"/>
-                <Text id="versionBoHint" text="Select one BO type. After the new version is uploaded, the app will link it to the selected business object."/>
-
-                <HBox id="versionBoToolbar" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiSmallMarginTop">
-                    <ObjectStatus
-                        id="versionSelectedBoStatus"
-                        text="{bo>/selectionText}"
-                        state="{= ${bo>/hasSelection} ? 'Success' : 'Warning'}"/>
-                    <Button
-                        id="versionRefreshBoButton"
-                        text="Refresh BO List"
-                        icon="sap-icon://refresh"
-                        press="onRefreshVersionBizObjects"
-                        enabled="{= !${bo>/busy}}"/>
-                </HBox>
-
-                <List
-                    id="versionBoSelectionList"
+                <Text id="versionBoHint" text="Select BO Type using search help to keep good UX for large data."/>
+                <Label id="versionBoTypeSelectLabel" text="BO Type" class="sapUiSmallMarginTop" required="true"/>
+                <Input
+                    id="versionBoTypeInput"
+                    value="{bo>/selectedBoType}"
+                    placeholder="Choose BO Type"
+                    showValueHelp="true"
+                    valueHelpOnly="true"
+                    valueHelpRequest="onOpenVersionBoSearchHelp"
+                    editable="{= !${bo>/busy}}"/>
+                <ObjectStatus
+                    id="versionSelectedBoStatus"
                     class="sapUiSmallMarginTop"
-                    items="{bo>/items}"
-                    mode="None"
-                    noDataText="No business objects available"
-                    busy="{bo>/busy}"
-                    growing="true"
-                    growingScrollToLoad="true">
-                    <items>
-                        <CustomListItem id="versionBoSelectionItem">
-                            <HBox id="versionBoSelectionRow" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap">
-                                <VBox id="versionBoTextContainer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                                    <Title id="versionBoTypeTitle" text="{bo>BoType}" level="H5"/>
-                                    <Text id="versionBoDescriptionText" text="{bo>Description}" visible="{= !!${bo>Description}}"/>
-                                </VBox>
-                                <CheckBox
-                                    id="versionBoSelectCheckbox"
-                                    selected="{bo>Selected}"
-                                    select="onVersionBizObjectSelect"/>
-                            </HBox>
-                        </CustomListItem>
-                    </items>
-                </List>
+                    text="{bo>/selectionText}"
+                    state="{= ${bo>/hasSelection} ? 'Success' : 'Warning'}"/>
 
                 <Panel
                     id="versionContentPreviewBox"

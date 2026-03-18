@@ -3,8 +3,10 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
     "sap/m/MessageBox",
+    "sap/m/SelectDialog",
+    "sap/m/StandardListItem",
     "zattach/zattachfe/model/formatter"
-], function (Controller, JSONModel, MessageToast, MessageBox, formatter) {
+], function (Controller, JSONModel, MessageToast, MessageBox, SelectDialog, StandardListItem, formatter) {
     "use strict";
 
     var MAX_FILE_SIZE = 10485760;
@@ -56,19 +58,78 @@ sap.ui.define([
 
         _onRouteMatched: function () {
             this._resetForm();
-            this._loadBizObjects();
         },
 
-        onRefreshBizObjects: function () {
-            this._loadBizObjects();
+        onOpenBoSearchHelp: function () {
+            this._openBoSearchHelpDialog("");
         },
 
-        _loadBizObjects: function () {
+        _openBoSearchHelpDialog: function (sSearchText) {
+            var oView = this.getView();
+
+            if (!this._oBoSearchModel) {
+                this._oBoSearchModel = new JSONModel({
+                    items: []
+                });
+            }
+
+            if (!this._oBoSearchDialog) {
+                this._oBoSearchDialog = new SelectDialog({
+                    title: "Select BO Type",
+                    rememberSelections: false,
+                    search: this.onBoSearchHelpSearch.bind(this),
+                    liveChange: this.onBoSearchHelpSearch.bind(this),
+                    confirm: this.onBoSearchHelpConfirm.bind(this),
+                    cancel: this.onBoSearchHelpCancel.bind(this),
+                    items: {
+                        path: "boSearch>/items",
+                        template: new StandardListItem({
+                            title: "{boSearch>BoType}",
+                            description: "{boSearch>Description}"
+                        })
+                    }
+                });
+
+                this._oBoSearchDialog.setModel(this._oBoSearchModel, "boSearch");
+                oView.addDependent(this._oBoSearchDialog);
+            }
+
+            this._loadBoSearchResults(sSearchText).then(function () {
+                this._oBoSearchDialog.open(sSearchText || "");
+            }.bind(this));
+        },
+
+        onBoSearchHelpSearch: function (oEvent) {
+            this._loadBoSearchResults(oEvent.getParameter("value") || "");
+        },
+
+        onBoSearchHelpConfirm: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            var oContext;
+            var oSelectedBizObject;
+
+            if (!oSelectedItem) {
+                return;
+            }
+
+            oContext = oSelectedItem.getBindingContext("boSearch");
+            oSelectedBizObject = oContext && oContext.getObject();
+
+            if (oSelectedBizObject) {
+                this._setSelectedBizObject(oSelectedBizObject);
+            }
+        },
+
+        onBoSearchHelpCancel: function () {
+            return;
+        },
+
+        _loadBoSearchResults: function (sSearchText) {
             var oBizObjectModel = this.getView().getModel("bo");
 
             oBizObjectModel.setProperty("/busy", true);
 
-            fetch(this._getBizObjectCollectionUrl(), {
+            return fetch(this._getBizObjectCollectionUrl(sSearchText, 30), {
                 method: "GET",
                 credentials: "include",
                 headers: {
@@ -87,14 +148,10 @@ sap.ui.define([
                     return this._mapBizObject(oBizObject);
                 }.bind(this));
 
-                oBizObjectModel.setProperty("/items", aItems);
-                oBizObjectModel.setProperty("/hasItems", aItems.length > 0);
-                this._clearSelectedBizObject();
+                this._oBoSearchModel.setProperty("/items", aItems);
             }.bind(this)).catch(function (oError) {
-                oBizObjectModel.setProperty("/items", []);
-                oBizObjectModel.setProperty("/hasItems", false);
-                this._clearSelectedBizObject();
-                MessageBox.error("Failed to load business objects: " + this._extractErrorMessage(oError));
+                this._oBoSearchModel.setProperty("/items", []);
+                MessageBox.error("Failed to search business objects: " + this._extractErrorMessage(oError));
             }.bind(this)).finally(function () {
                 oBizObjectModel.setProperty("/busy", false);
             });
@@ -111,39 +168,6 @@ sap.ui.define([
                 Description: sDescription,
                 Selected: false
             };
-        },
-
-        onBizObjectSelect: function (oEvent) {
-            var bSelected = oEvent.getParameter("selected");
-            var oSource = oEvent.getSource();
-            var oContext = oSource.getBindingContext("bo");
-            var oBizObjectModel = this.getView().getModel("bo");
-            var aItems = oBizObjectModel.getProperty("/items") || [];
-            var iSelectedIndex;
-
-            if (!oContext) {
-                return;
-            }
-
-            iSelectedIndex = parseInt(oContext.getPath().split("/").pop(), 10);
-
-            aItems = aItems.map(function (oItem, iIndex) {
-                return {
-                    BoId: oItem.BoId,
-                    BoType: oItem.BoType,
-                    Description: oItem.Description,
-                    Selected: bSelected && iIndex === iSelectedIndex
-                };
-            });
-
-            oBizObjectModel.setProperty("/items", aItems);
-
-            if (bSelected && aItems[iSelectedIndex]) {
-                this._setSelectedBizObject(aItems[iSelectedIndex]);
-                return;
-            }
-
-            this._clearSelectedBizObject();
         },
 
         _setSelectedBizObject: function (oBizObject) {
@@ -164,8 +188,20 @@ sap.ui.define([
             oBizObjectModel.setProperty("/selectionText", "No business object selected");
         },
 
-        _getBizObjectCollectionUrl: function () {
-            return BIZ_OBJECT_SERVICE_ROOT + "/BizObject?sap-client=" + SAP_CLIENT;
+        _getBizObjectCollectionUrl: function (sSearchText, iTop) {
+            var iResultTop = iTop || 30;
+            var sSearch = String(sSearchText || "").trim();
+            var sUrl = BIZ_OBJECT_SERVICE_ROOT + "/BizObject?sap-client=" + SAP_CLIENT + "&$top=" + iResultTop;
+
+            if (sSearch) {
+                sUrl += "&$filter=" + encodeURIComponent("contains(BoType,'" + this._escapeODataValue(sSearch) + "')");
+            }
+
+            return sUrl;
+        },
+
+        _escapeODataValue: function (sValue) {
+            return String(sValue || "").replace(/'/g, "''");
         },
 
         _getLinkToBoUrl: function (sFileId) {
