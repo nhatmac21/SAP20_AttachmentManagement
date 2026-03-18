@@ -20,7 +20,7 @@
   "devDependencies": {
     "@sap/ux-specification": "^1.120.0",
     "@sap/ui5-builder-webide-extension": "^1.1.9",
-    "@ui5/cli": "^3.0.0",
+    "@ui5/cli": "^4.0.49",
     "@sap/ux-ui5-tooling": "^1.14.4",
     "ui5-task-flatten-library": "^3.0.2"
   },
