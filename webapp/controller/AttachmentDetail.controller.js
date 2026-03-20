@@ -7,6 +7,7 @@ sap.ui.define([
     "use strict";
 
     var ATTACH_SERVICE_ROOT = "/sap/opu/odata4/sap/zui_attach_bind/srvd/sap/zui_attach_srv/0001";
+    var BIZ_OBJECT_SERVICE_ROOT = "/sap/opu/odata4/sap/zui_bizobj_bind/srvd/sap/zui_bizobj_srv/0001";
     var SAP_CLIENT = "324";
 
     return Controller.extend("zattach.zattachfe.controller.AttachmentDetail", {
@@ -53,6 +54,7 @@ sap.ui.define([
         _loadAttachmentDetail: function (sFileId) {
             var oViewModel = this.getView().getModel("view");
 
+            this._resetDetailModel();
             oViewModel.setProperty("/busy", true);
             console.log("=== Loading Attachment Detail for FileId: " + sFileId + " ===");
 
@@ -72,7 +74,11 @@ sap.ui.define([
                 console.warn("⚠ Audit trail load failed:", oError);
             });
 
-            Promise.allSettled([pAttachment, pVersions, pAuditTrail]).then(function () {
+            var pLinkedObjects = this._loadLinkedObjects(sFileId).catch(function (oError) {
+                console.warn("⚠ Linked objects load failed:", oError);
+            });
+
+            Promise.allSettled([pAttachment, pVersions, pAuditTrail, pLinkedObjects]).then(function () {
                 oViewModel.setProperty("/busy", false);
             });
         },
@@ -102,13 +108,37 @@ sap.ui.define([
                 oViewModel.setProperty("/versions", aVersions);
 
                 if (aVersions.length > 0 && !oViewModel.getProperty("/FileName")) {
-                    this._applyAttachmentData(aVersions[0], sFileId);
+                    this._applyVersionFallbackData(aVersions[0], sFileId);
                 }
             }.bind(this)).catch(function (oError) {
                 console.error("✗ Error loading versions:", oError);
                 oViewModel.setProperty("/versions", []);
                 throw oError;
             });
+        },
+
+        _resetDetailModel: function () {
+            var oViewModel = this.getView().getModel("view");
+
+            oViewModel.setProperty("/FileId", "");
+            oViewModel.setProperty("/FileName", "");
+            oViewModel.setProperty("/FileExtension", "");
+            oViewModel.setProperty("/MimeType", "");
+            oViewModel.setProperty("/FileSize", 0);
+            oViewModel.setProperty("/VersionNo", "");
+            oViewModel.setProperty("/Title", "");
+            oViewModel.setProperty("/CurrentVersion", "");
+            oViewModel.setProperty("/IsActive", false);
+            oViewModel.setProperty("/Erdat", "");
+            oViewModel.setProperty("/Erzet", "");
+            oViewModel.setProperty("/Ernam", "");
+            oViewModel.setProperty("/Aedat", "");
+            oViewModel.setProperty("/Aezet", "");
+            oViewModel.setProperty("/Aenam", "");
+            oViewModel.setProperty("/EditLock", false);
+            oViewModel.setProperty("/versions", []);
+            oViewModel.setProperty("/auditTrail", []);
+            oViewModel.setProperty("/linkBo", []);
         },
 
         _loadAuditTrail: function (sFileId) {
@@ -137,6 +167,46 @@ sap.ui.define([
             });
         },
 
+        _loadLinkedObjects: function (sFileId) {
+            var oViewModel = this.getView().getModel("view");
+            var sListUrl = BIZ_OBJECT_SERVICE_ROOT + "/BizObjectAttachmentLink?sap-client=" + SAP_CLIENT + "&$filter=" + encodeURIComponent("FileId eq " + sFileId);
+
+            console.log("=== Loading Linked Objects for FileId: " + sFileId + " ===");
+
+            return this._sendGetRequest(sListUrl, BIZ_OBJECT_SERVICE_ROOT).then(function (oData) {
+                var aLinkedObjects = this._extractCollection(oData);
+
+                if (aLinkedObjects.length === 0 && oData && typeof oData === "object") {
+                    aLinkedObjects = [oData];
+                }
+
+                return Promise.all(aLinkedObjects.map(function (oLinkRecord) {
+                    var oNormalizedLink = this._normalizeLinkedObject(oLinkRecord);
+                    var sBoId = oNormalizedLink.BoId;
+                    var sRecordFileId = oNormalizedLink.FileId || sFileId;
+
+                    if (!sBoId || !sRecordFileId) {
+                        return Promise.resolve(oNormalizedLink);
+                    }
+
+                    return this._sendGetRequest(this._getBizObjectUrl(sBoId), BIZ_OBJECT_SERVICE_ROOT).then(function (oBizObjectData) {
+                        return this._mergeLinkedObjectData(oNormalizedLink, oBizObjectData);
+                    }.bind(this)).catch(function () {
+                        return oNormalizedLink;
+                    });
+                }.bind(this))).then(function (aMergedLinkedObjects) {
+                    console.log("✓ Raw API Response (Linked Objects):", oData);
+                    console.log("✓ Combined linked objects:", aMergedLinkedObjects.length);
+
+                    oViewModel.setProperty("/linkBo", aMergedLinkedObjects);
+                });
+            }.bind(this)).catch(function (oError) {
+                console.warn("⚠ Linked objects API failed:", oError);
+                oViewModel.setProperty("/linkBo", []);
+                throw oError;
+            });
+        },
+
         _applyAttachmentData: function (oAttachment, sFileId) {
             var oViewModel = this.getView().getModel("view");
             var oData = oAttachment || {};
@@ -156,6 +226,24 @@ sap.ui.define([
             oViewModel.setProperty("/Aezet", oData.Aezet || "");
             oViewModel.setProperty("/Aenam", oData.Aenam || "");
             oViewModel.setProperty("/EditLock", oData.EditLock === true);
+            oViewModel.setProperty("/VersionNo", oData.VersionNo || oData.CurrentVersion || "");
+        },
+
+        _applyVersionFallbackData: function (oVersion, sFileId) {
+            var oViewModel = this.getView().getModel("view");
+            var oData = oVersion || {};
+
+            oViewModel.setProperty("/FileId", oData.FileId || sFileId || "");
+            oViewModel.setProperty("/Title", oData.Title || oData.FileName || "");
+            oViewModel.setProperty("/FileName", oData.FileName || "");
+            oViewModel.setProperty("/FileExtension", oData.FileExtension || "");
+            oViewModel.setProperty("/MimeType", oData.MimeType || "");
+            oViewModel.setProperty("/FileSize", oData.FileSize || 0);
+            oViewModel.setProperty("/CurrentVersion", oData.CurrentVersion || oData.VersionNo || "");
+            oViewModel.setProperty("/IsActive", oData.IsActive === true);
+            oViewModel.setProperty("/Erdat", oData.Erdat || "");
+            oViewModel.setProperty("/Erzet", oData.Erzet || "");
+            oViewModel.setProperty("/Ernam", oData.Ernam || "");
             oViewModel.setProperty("/VersionNo", oData.VersionNo || oData.CurrentVersion || "");
         },
 
@@ -189,6 +277,14 @@ sap.ui.define([
             return this._buildUrl("/Attachments(FileId=" + sFileId + ")/_Audit");
         },
 
+        _getBizObjectUrl: function (sBoId) {
+            return BIZ_OBJECT_SERVICE_ROOT + "/BizObject(BoId=" + sBoId + ")?sap-client=" + SAP_CLIENT;
+        },
+
+        _getUnlinkAttachmentUrl: function (sBoId, sFileId) {
+            return BIZ_OBJECT_SERVICE_ROOT + "/BizObjectAttachmentLink(BoId=" + sBoId + ",FileId=" + sFileId + ")?sap-client=" + SAP_CLIENT;
+        },
+
         _getDownloadVersionUrl: function (sFileId) {
             return this._buildUrl("/Attachments(FileId=" + sFileId + ")/com.sap.gateway.srvd.zui_attach_srv.v0001.download_version");
         },
@@ -204,6 +300,32 @@ sap.ui.define([
                 Note: oData.Note || "",
                 UserName: oData.Uname || oData.Ernam || "",
                 FileId: oData.FileId || ""
+            };
+        },
+
+        _normalizeLinkedObject: function (oRecord) {
+            var oData = oRecord || {};
+
+            if (oData.value && typeof oData.value === "object") {
+                oData = oData.value;
+            }
+
+            return {
+                BoId: oData.BoId || oData.BO_ID || oData.BOId || oData.bo_id || "",
+                BoType: oData.BoType || oData.BO_TYPE || oData.BOTYPE || oData.Type || "",
+                Title: oData.Title || oData.Description || oData.BoType || oData.BoId || "",
+                FileId: oData.FileId || ""
+            };
+        },
+
+        _mergeLinkedObjectData: function (oLinkRecord, oAttachData) {
+            var oBizObject = oAttachData && oAttachData.value ? oAttachData.value : (oAttachData || {});
+
+            return {
+                BoId: oLinkRecord.BoId,
+                BoType: oLinkRecord.BoType || oBizObject.BoType || oBizObject.Type || oBizObject.boType || "",
+                Title: oLinkRecord.Title || oBizObject.Title || oBizObject.Description || oBizObject.FileName || "",
+                FileId: oLinkRecord.FileId || oBizObject.FileId || ""
             };
         },
 
@@ -223,12 +345,14 @@ sap.ui.define([
             return [];
         },
 
-        _fetchCsrfToken: function () {
-            if (this._mCsrfTokens[ATTACH_SERVICE_ROOT]) {
-                return Promise.resolve(this._mCsrfTokens[ATTACH_SERVICE_ROOT]);
+        _fetchCsrfToken: function (sServiceRoot) {
+            var sRoot = sServiceRoot || ATTACH_SERVICE_ROOT;
+
+            if (this._mCsrfTokens[sRoot]) {
+                return Promise.resolve(this._mCsrfTokens[sRoot]);
             }
 
-            return fetch(ATTACH_SERVICE_ROOT + "/", {
+            return fetch(sRoot + "/", {
                 method: "GET",
                 credentials: "include",
                 headers: {
@@ -241,14 +365,14 @@ sap.ui.define([
                     throw new Error("Unable to fetch CSRF token");
                 }
 
-                this._mCsrfTokens[ATTACH_SERVICE_ROOT] = sToken;
-                console.log("✓ CSRF token fetched for attachment service");
+                this._mCsrfTokens[sRoot] = sToken;
+                console.log("✓ CSRF token fetched for service root: " + sRoot);
                 return sToken;
             }.bind(this));
         },
 
-        _sendGetRequest: function (sUrl) {
-            return this._fetchCsrfToken().then(function (sToken) {
+        _sendGetRequest: function (sUrl, sServiceRoot) {
+            return this._fetchCsrfToken(sServiceRoot).then(function (sToken) {
                 console.log("📍 GET URL:", sUrl);
 
                 return fetch(sUrl, {
@@ -303,6 +427,35 @@ sap.ui.define([
                 }
 
                 return oResponse.blob();
+            });
+        },
+
+        _sendDeleteRequest: function (sUrl, sServiceRoot) {
+            return this._fetchCsrfToken(sServiceRoot).then(function (sToken) {
+                console.log("📍 DELETE URL:", sUrl);
+
+                return fetch(sUrl, {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-CSRF-Token": sToken
+                    }
+                });
+            }).then(function (oResponse) {
+                if (!oResponse.ok) {
+                    return oResponse.text().then(function (sText) {
+                        throw new Error(sText || ("Request failed with status " + oResponse.status));
+                    });
+                }
+
+                if (oResponse.status === 204) {
+                    return null;
+                }
+
+                return oResponse.text().then(function (sText) {
+                    return sText ? JSON.parse(sText) : null;
+                });
             });
         },
 
@@ -391,8 +544,42 @@ sap.ui.define([
             MessageToast.show("Add link action");
         },
 
-        onRemoveLink: function () {
-            MessageToast.show("Remove link action");
+        onRemoveLink: function (oEvent) {
+            var oSource = oEvent.getSource();
+            var oContext = oSource.getBindingContext("view");
+            var oLink = oContext && oContext.getObject();
+            var oViewModel = this.getView().getModel("view");
+            var sBoId = oLink && oLink.BoId;
+            var sFileId = oLink && oLink.FileId;
+
+            if (!sBoId || !sFileId) {
+                MessageBox.error("Missing BO ID or File ID for unlinking");
+                return;
+            }
+
+            MessageBox.confirm("Remove link to this business object?", {
+                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                emphasizedAction: MessageBox.Action.OK,
+                onClose: function (sAction) {
+                    if (sAction !== MessageBox.Action.OK) {
+                        return;
+                    }
+
+                    oViewModel.setProperty("/busy", true);
+
+                    this._sendDeleteRequest(this._getUnlinkAttachmentUrl(sBoId, sFileId), BIZ_OBJECT_SERVICE_ROOT)
+                        .then(function () {
+                            MessageToast.show("Link removed");
+                            return this._loadLinkedObjects(this.getView().getModel("view").getProperty("/FileId"));
+                        }.bind(this))
+                        .catch(function (oError) {
+                            MessageBox.error("Failed to remove link: " + oError.message);
+                        }.bind(this))
+                        .finally(function () {
+                            oViewModel.setProperty("/busy", false);
+                        });
+                }.bind(this)
+            });
         },
 
         onNavBack: function () {

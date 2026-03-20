@@ -158,7 +158,7 @@ sap.ui.define([
         },
 
         _mapBizObject: function (oBizObject) {
-            var sBoId = oBizObject.BO_ID || oBizObject.BoId || oBizObject.BOId || oBizObject.Boid || "";
+            var sBoId = oBizObject.bo_id || oBizObject.BoId || oBizObject.BOId || oBizObject.Boid || "";
             var sBoType = oBizObject.BoType || oBizObject.BO_TYPE || oBizObject.BOTYPE || oBizObject.Type || sBoId;
             var sDescription = oBizObject.Description || oBizObject.BoDescription || oBizObject.BO_DESCRIPTION || "";
 
@@ -267,7 +267,7 @@ sap.ui.define([
                 this._getLinkToBoUrl(sFileId),
                 "POST",
                 {
-                    BO_ID: sBoId
+                    bo_id: sBoId
                 }
             );
         },
