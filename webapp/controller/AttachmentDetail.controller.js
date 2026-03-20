@@ -1,0 +1,309 @@
+sap.ui.define([
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageBox",
+    "sap/m/MessageToast"
+], function (Controller, JSONModel, MessageBox, MessageToast) {
+    "use strict";
+
+    var ATTACH_SERVICE_ROOT = "/sap/opu/odata4/sap/zui_attach_bind/srvd/sap/zui_attach_srv/0001";
+    var SAP_CLIENT = "324";
+
+    return Controller.extend("zattach.zattachfe.controller.AttachmentDetail", {
+        onInit: function () {
+            console.log("AttachmentDetail controller initialized");
+            var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+            oRouter.getRoute("AttachmentDetail").attachPatternMatched(this._onRouteMatched, this);
+            this._mCsrfTokens = {};
+
+            // Initialize view model (JSON model, not OData)
+            var oViewModel = new JSONModel({
+                FileId: "",
+                FileName: "",
+                FileExtension: "",
+                MimeType: "",
+                FileSize: 0,
+                VersionNo: "",
+                Title: "",
+                CurrentVersion: "",
+                IsActive: false,
+                Erdat: "",
+                Erzet: "",
+                Ernam: "",
+                Aedat: "",
+                Aezet: "",
+                Aenam: "",
+                EditLock: false,
+                versions: [],
+                auditTrail: [],
+                linkBo: [],
+                busy: false
+            });
+            this.getView().setModel(oViewModel, "view");
+        },
+
+        _onRouteMatched: function (oEvent) {
+            console.log("ROUTE MATCHED");
+            var sFileId = oEvent.getParameter("arguments").id;
+            if (sFileId) {
+                this._loadAttachmentDetail(sFileId);
+            }
+        },
+
+        _loadAttachmentDetail: function (sFileId) {
+            var oViewModel = this.getView().getModel("view");
+
+            oViewModel.setProperty("/busy", true);
+            console.log("=== Loading Attachment Detail for FileId: " + sFileId + " ===");
+
+            var pAttachment = this._getAttachmentById(sFileId).then(function (oAttachment) {
+                console.log("✓ Raw API Response (Attachment):", oAttachment);
+                this._applyAttachmentData(oAttachment, sFileId);
+            }.bind(this)).catch(function (oError) {
+    MessageBox.error("Failed to load attachment: " + oError.message);
+            });
+
+            var pVersions = this._loadVersions(sFileId).catch(function (oError) {
+                console.error("✗ Error loading versions:", oError);
+                MessageToast.show("Failed to load versions");
+            });
+
+            var pAuditTrail = this._loadAuditTrail(sFileId).catch(function (oError) {
+                console.warn("⚠ Audit trail load failed:", oError);
+            });
+
+            Promise.allSettled([pAttachment, pVersions, pAuditTrail]).then(function () {
+                oViewModel.setProperty("/busy", false);
+            });
+        },
+
+        _loadVersions: function (sFileId) {
+            var oViewModel = this.getView().getModel("view");
+
+            console.log("=== Loading Versions for FileId: " + sFileId + " ===");
+
+            return this._sendGetRequest(this._getVersionsUrl(sFileId)).then(function (oData) {
+                console.log("✓ Raw API Response (Versions):", oData);
+
+                var aVersions = Array.isArray(oData && oData.value) ? oData.value : [];
+                console.log("✓ Found " + aVersions.length + " versions in response");
+
+                aVersions.forEach(function (oVersion, index) {
+                    console.log("  Version " + (index + 1) + ":", {
+                        VersionNo: oVersion.VersionNo,
+                        FileName: oVersion.FileName,
+                        FileSize: oVersion.FileSize,
+                        Ernam: oVersion.Ernam,
+                        Erdat: oVersion.Erdat,
+                        Erzet: oVersion.Erzet
+                    });
+                });
+
+                oViewModel.setProperty("/versions", aVersions);
+
+                if (aVersions.length > 0 && !oViewModel.getProperty("/FileName")) {
+                    this._applyAttachmentData(aVersions[0], sFileId);
+                }
+            }.bind(this)).catch(function (oError) {
+                console.error("✗ Error loading versions:", oError);
+                oViewModel.setProperty("/versions", []);
+                throw oError;
+            });
+        },
+
+        _loadAuditTrail: function (sFileId) {
+            var oViewModel = this.getView().getModel("view");
+            
+            console.log("=== Loading Audit Trail for FileId: " + sFileId + " ===");
+
+            return Promise.all([
+                this._sendGetRequest(this._getAuditTrailUrl(sFileId)),
+                this._sendGetRequest(this._getAuditUrl(sFileId))
+            ]).then(function (aResponses) {
+                var aAuditTrail = this._extractCollection(aResponses[0]).map(this._normalizeAuditRecord.bind(this));
+                var aAudit = this._extractCollection(aResponses[1]).map(this._normalizeAuditRecord.bind(this));
+                var aCombined = aAuditTrail.concat(aAudit);
+
+                console.log("✓ Raw API Response (Audit Trail):", aResponses[0]);
+                console.log("✓ Raw API Response (Audit):", aResponses[1]);
+                console.log("✓ Combined audit records:", aCombined.length);
+
+                oViewModel.setProperty("/auditTrail", aCombined);
+                oViewModel.setProperty("/linkBo", []);
+            }.bind(this)).catch(function (oError) {
+                console.warn("⚠ Audit trail API failed:", oError);
+                oViewModel.setProperty("/auditTrail", []);
+                oViewModel.setProperty("/linkBo", []);
+            });
+        },
+
+        _applyAttachmentData: function (oAttachment, sFileId) {
+            var oViewModel = this.getView().getModel("view");
+            var oData = oAttachment || {};
+
+            oViewModel.setProperty("/FileId", oData.FileId || sFileId || "");
+            oViewModel.setProperty("/Title", oData.Title || oData.FileName || "");
+            oViewModel.setProperty("/FileName", oData.FileName || "");
+            oViewModel.setProperty("/FileExtension", oData.FileExtension || "");
+            oViewModel.setProperty("/MimeType", oData.MimeType || "");
+            oViewModel.setProperty("/FileSize", oData.FileSize || 0);
+            oViewModel.setProperty("/CurrentVersion", oData.CurrentVersion || oData.VersionNo || "");
+            oViewModel.setProperty("/IsActive", oData.IsActive === true);
+            oViewModel.setProperty("/Erdat", oData.Erdat || "");
+            oViewModel.setProperty("/Erzet", oData.Erzet || "");
+            oViewModel.setProperty("/Ernam", oData.Ernam || "");
+            oViewModel.setProperty("/Aedat", oData.Aedat || "");
+            oViewModel.setProperty("/Aezet", oData.Aezet || "");
+            oViewModel.setProperty("/Aenam", oData.Aenam || "");
+            oViewModel.setProperty("/EditLock", oData.EditLock === true);
+            oViewModel.setProperty("/VersionNo", oData.VersionNo || oData.CurrentVersion || "");
+        },
+
+        _getAttachmentById: function (sFileId) {
+            return this._sendGetRequest(this._getAttachmentUrl(sFileId)).then(function (oData) {
+                if (oData && !oData.error) {
+                    return oData;
+                }
+
+                throw new Error("Attachment response is empty or invalid");
+            });
+        },
+
+        _buildUrl: function (sRelativePath) {
+            return ATTACH_SERVICE_ROOT + sRelativePath + "?sap-client=" + SAP_CLIENT;
+        },
+
+        _getAttachmentUrl: function (sFileId) {
+            return this._buildUrl("/Attachments(FileId=" + sFileId + ")");
+        },
+
+        _getVersionsUrl: function (sFileId) {
+            return this._buildUrl("/Attachments(FileId=" + sFileId + ")/_Versions");
+        },
+
+        _getAuditTrailUrl: function (sFileId) {
+            return this._buildUrl("/Attachments(FileId=" + sFileId + ")/_Audit");
+        },
+
+        _getAuditUrl: function (sFileId) {
+            return this._buildUrl("/Attachments(FileId=" + sFileId + ")/_Audit");
+        },
+
+        _normalizeAuditRecord: function (oRecord) {
+            var oData = oRecord || {};
+
+            return {
+                Action: oData.Action || "",
+                CreatedBy: oData.Ernam || oData.Uname || "",
+                Date: oData.Erdat || "",
+                Time: oData.Erzet || "",
+                Note: oData.Note || "",
+                UserName: oData.Uname || oData.Ernam || "",
+                FileId: oData.FileId || ""
+            };
+        },
+
+        _extractCollection: function (oData) {
+            if (Array.isArray(oData)) {
+                return oData;
+            }
+
+            if (oData && Array.isArray(oData.value)) {
+                return oData.value;
+            }
+
+            if (oData && oData.d && Array.isArray(oData.d.results)) {
+                return oData.d.results;
+            }
+
+            return [];
+        },
+
+        _fetchCsrfToken: function () {
+            if (this._mCsrfTokens[ATTACH_SERVICE_ROOT]) {
+                return Promise.resolve(this._mCsrfTokens[ATTACH_SERVICE_ROOT]);
+            }
+
+            return fetch(ATTACH_SERVICE_ROOT + "/", {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "X-CSRF-Token": "Fetch",
+                    "Accept": "application/json"
+                }
+            }).then(function (oResponse) {
+                var sToken = oResponse.headers.get("x-csrf-token");
+                if (!sToken) {
+                    throw new Error("Unable to fetch CSRF token");
+                }
+
+                this._mCsrfTokens[ATTACH_SERVICE_ROOT] = sToken;
+                console.log("✓ CSRF token fetched for attachment service");
+                return sToken;
+            }.bind(this));
+        },
+
+        _sendGetRequest: function (sUrl) {
+            return this._fetchCsrfToken().then(function (sToken) {
+                console.log("📍 GET URL:", sUrl);
+
+                return fetch(sUrl, {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-CSRF-Token": sToken
+                    }
+                });
+            }).then(function (oResponse) {
+                if (!oResponse.ok) {
+                    return oResponse.text().then(function (sText) {
+                        throw new Error(sText || ("Request failed with status " + oResponse.status));
+                    });
+                }
+
+                return oResponse.text().then(function (sText) {
+                    return sText ? JSON.parse(sText) : {};
+                });
+            });
+        },
+
+        onDownloadAttachment: function () {
+            MessageToast.show("Download attachment action");
+        },
+
+        onSetCurrent: function () {
+            MessageToast.show("Set current version action");
+        },
+
+        onDelete: function () {
+            var that = this;
+            MessageBox.confirm("Are you sure you want to delete this attachment?", {
+                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                onClose: function(sAction) {
+                    if (sAction === MessageBox.Action.OK) {
+                        MessageToast.show("Attachment deleted");
+                        that.onNavBack();
+                    }
+                }
+            });
+        },
+
+        onDownloadVersion: function () {
+            MessageToast.show("Download version action");
+        },
+
+        onAddLink: function () {
+            MessageToast.show("Add link action");
+        },
+
+        onRemoveLink: function () {
+            MessageToast.show("Remove link action");
+        },
+
+        onNavBack: function () {
+            var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+            oRouter.navTo("AttachmentListList");
+        }
+    });
+});

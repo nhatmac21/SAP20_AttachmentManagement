@@ -61,16 +61,14 @@ sap.ui.define([
             }
         },
 
-        onItemPress: function(oEvent) {
-            // Handle row press in table
-            var oItem = oEvent.getParameter("listItem") || oEvent.getSource();
-            var oContext = oItem.getBindingContext();
-            
-            if (oContext) {
-                var sFileId = oContext.getProperty("FileId");
-                this._navigateToDetail(sFileId);
-            }
-        },
+        onItemPress: function (oEvent) {
+    var oItem = oEvent.getSource();
+    var sFileId = oItem.getBindingContext().getProperty("FileId");
+
+    this.getOwnerComponent().getRouter().navTo("AttachmentDetail", {
+        id: sFileId
+    });
+},
 
         onAttachmentPress: function(oEvent) {
             // Navigate to detail page from grid view
@@ -86,9 +84,9 @@ sap.ui.define([
         _navigateToDetail: function(sFileId) {
             var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
             if (oRouter) {
-                // Navigate to the selected Attachments object page
-                oRouter.navTo("AttachmentListObjectPage", {
-                    key: sFileId
+                // Navigate to custom detail page
+                oRouter.navTo("AttachmentDetail", {
+                    id: sFileId
                 }, false);
             } else {
                 sap.m.MessageToast.show("Router not found");
