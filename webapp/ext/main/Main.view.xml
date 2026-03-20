@@ -94,6 +94,9 @@
                         <Column id="_IDGenColumn5" width="20%">
                             <Text id="_IDGenText6" text="{i18n>colChangedDate}"/>
                         </Column>
+                        <Column id="attachmentActionsColumn" width="14%" hAlign="Center">
+                            <Text id="attachmentActionsHeader" text="Actions"/>
+                        </Column>
                     </columns>
                     <items>
                         <ColumnListItem id="_IDGenColumnListItem" type="Navigation" press="onItemPress">
@@ -106,6 +109,20 @@
                                 <Text id="_IDGenText9" text="{Ernam}"/>
                                 <Text id="_IDGenText10" text="{Aenam}"/>
                                 <Text id="_IDGenText11" text="{path: 'Aedat', formatter: '.formatter.formatDate'}"/>
+                                <HBox id="attachmentActionsCell" justifyContent="End" renderType="Bare">
+                                    <Button
+                                        id="editAttachmentButton"
+                                        text="Edit"
+                                        type="Transparent"
+                                        icon="sap-icon://edit"
+                                        press="onEditAttachment"/>
+                                    <Button
+                                        id="deleteAttachmentButton"
+                                        text="Delete"
+                                        type="Transparent"
+                                        icon="sap-icon://delete"
+                                        press="onDeleteAttachment"/>
+                                </HBox>
                             </cells>
                         </ColumnListItem>
                     </items>

@@ -189,6 +189,10 @@ sap.ui.define([
             return this._buildUrl("/Attachments(FileId=" + sFileId + ")/_Audit");
         },
 
+        _getDownloadVersionUrl: function (sFileId) {
+            return this._buildUrl("/Attachments(FileId=" + sFileId + ")/com.sap.gateway.srvd.zui_attach_srv.v0001.download_version");
+        },
+
         _normalizeAuditRecord: function (oRecord) {
             var oData = oRecord || {};
 
@@ -268,6 +272,69 @@ sap.ui.define([
             });
         },
 
+        _sendPostRequest: function (sUrl, oBody) {
+            return this._fetchCsrfToken().then(function (sToken) {
+                console.log("📍 POST URL:", sUrl);
+                console.log("📍 POST BODY:", oBody);
+
+                return fetch(sUrl, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": sToken
+                    },
+                    body: JSON.stringify(oBody || {})
+                });
+            }).then(function (oResponse) {
+                if (!oResponse.ok) {
+                    return oResponse.text().then(function (sText) {
+                        throw new Error(sText || ("Request failed with status " + oResponse.status));
+                    });
+                }
+
+                var sContentType = (oResponse.headers.get("content-type") || "").toLowerCase();
+
+                if (sContentType.indexOf("application/json") !== -1) {
+                    return oResponse.text().then(function (sText) {
+                        return sText ? JSON.parse(sText) : {};
+                    });
+                }
+
+                return oResponse.blob();
+            });
+        },
+
+        _triggerDownloadFromResponse: function (oResponseData, sFileName) {
+            if (oResponseData instanceof Blob) {
+                var sObjectUrl = URL.createObjectURL(oResponseData);
+                var oLink = document.createElement("a");
+
+                oLink.href = sObjectUrl;
+                oLink.download = sFileName || "attachment";
+                document.body.appendChild(oLink);
+                oLink.click();
+                document.body.removeChild(oLink);
+                URL.revokeObjectURL(sObjectUrl);
+                return;
+            }
+
+            if (oResponseData && oResponseData.FileContent) {
+                var sDataUrl = "data:application/octet-stream;base64," + oResponseData.FileContent;
+                var oDownloadLink = document.createElement("a");
+
+                oDownloadLink.href = sDataUrl;
+                oDownloadLink.download = sFileName || oResponseData.FileName || "attachment";
+                document.body.appendChild(oDownloadLink);
+                oDownloadLink.click();
+                document.body.removeChild(oDownloadLink);
+                return;
+            }
+
+            MessageToast.show("Download request completed");
+        },
+
         onDownloadAttachment: function () {
             MessageToast.show("Download attachment action");
         },
@@ -289,8 +356,35 @@ sap.ui.define([
             });
         },
 
-        onDownloadVersion: function () {
-            MessageToast.show("Download version action");
+        onDownloadVersion: function (oEvent) {
+            var oSource = oEvent.getSource();
+            var oContext = oSource.getBindingContext("view");
+            var oViewModel = this.getView().getModel("view");
+            var sFileId = oViewModel.getProperty("/FileId");
+            var sVersionNo = oContext && oContext.getProperty("VersionNo");
+            var sFileName = oContext && oContext.getProperty("FileName");
+
+            if (!sFileId) {
+                MessageBox.error("Missing FileId for download");
+                return;
+            }
+
+            if (!sVersionNo) {
+                MessageBox.error("Missing VersionNo for download");
+                return;
+            }
+
+            oViewModel.setProperty("/busy", true);
+
+            this._sendPostRequest(this._getDownloadVersionUrl(sFileId), {
+                VERSION_NO: String(sVersionNo)
+            }).then(function (oResponseData) {
+                this._triggerDownloadFromResponse(oResponseData, sFileName || ("version-" + sVersionNo));
+            }.bind(this)).catch(function (oError) {
+                MessageBox.error("Failed to download version: " + oError.message);
+            }).finally(function () {
+                oViewModel.setProperty("/busy", false);
+            });
         },
 
         onAddLink: function () {
