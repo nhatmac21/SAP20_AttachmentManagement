@@ -1,9 +1,12 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
+    "sap/ui/core/Fragment",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageBox",
-    "sap/m/MessageToast"
-], function (Controller, JSONModel, MessageBox, MessageToast) {
+    "sap/m/MessageToast",
+    "sap/m/SelectDialog",
+    "sap/m/StandardListItem"
+], function (Controller, Fragment, JSONModel, MessageBox, MessageToast, SelectDialog, StandardListItem) {
     "use strict";
 
     var ATTACH_SERVICE_ROOT = "/sap/opu/odata4/sap/zui_attach_bind/srvd/sap/zui_attach_srv/0001";
@@ -38,6 +41,7 @@ sap.ui.define([
                 versions: [],
                 auditTrail: [],
                 linkBo: [],
+                versionUpload: [],
                 busy: false
             });
             this.getView().setModel(oViewModel, "view");
@@ -61,6 +65,7 @@ sap.ui.define([
             var pAttachment = this._getAttachmentById(sFileId).then(function (oAttachment) {
                 console.log("✓ Raw API Response (Attachment):", oAttachment);
                 this._applyAttachmentData(oAttachment, sFileId);
+                this._applyCurrentVersionData(oAttachment && oAttachment._CurrentVersion, oAttachment);
             }.bind(this)).catch(function (oError) {
     MessageBox.error("Failed to load attachment: " + oError.message);
             });
@@ -207,6 +212,343 @@ sap.ui.define([
             });
         },
 
+        _loadVersionUploadDialog: function () {
+            var oView = this.getView();
+
+            if (this._oVersionUploadDialog) {
+                return Promise.resolve(this._oVersionUploadDialog);
+            }
+
+            if (!this._oVersionUploadModel) {
+                this._oVersionUploadModel = new JSONModel({
+                    FileName: "",
+                    FileExtension: "",
+                    MimeType: "",
+                    FileSize: 0,
+                    FileContent: "",
+                    busy: false
+                });
+            }
+
+            if (!this._oVersionPreviewDataUrl) {
+                this._oVersionPreviewDataUrl = "";
+            }
+
+            if (!this._oVersionPreviewMimeType) {
+                this._oVersionPreviewMimeType = "";
+            }
+
+            this._sVersionUploadFragmentId = oView.getId() + "--versionUploadFragment";
+
+            return Fragment.load({
+                id: this._sVersionUploadFragmentId,
+                name: "zattach.zattachfe.fragment.UploadVersion",
+                controller: this
+            }).then(function (oDialog) {
+                this._oVersionUploadDialog = oDialog;
+                oView.addDependent(oDialog);
+                oDialog.setModel(this._oVersionUploadModel, "versionUpload");
+                return oDialog;
+            }.bind(this));
+        },
+
+        _getVersionUploadDialogControl: function (sControlId) {
+            return Fragment.byId(this._sVersionUploadFragmentId, sControlId);
+        },
+
+        _resetVersionUploadState: function () {
+            var oModel = this._oVersionUploadModel;
+
+            this._oVersionFile = null;
+            this._oVersionPreviewDataUrl = "";
+            this._oVersionPreviewMimeType = "";
+
+            if (oModel) {
+                oModel.setData({
+                    FileName: "",
+                    FileExtension: "",
+                    MimeType: "",
+                    FileSize: 0,
+                    FileContent: "",
+                    busy: false
+                });
+            }
+
+            var oDropZone = document.getElementById("versionDropZone");
+            if (oDropZone) {
+                oDropZone.dataset.bound = "false";
+            }
+
+            var oPreviewImage = this._getVersionUploadDialogControl("attachmentDetailVersionImagePreview");
+            var oPreviewNoText = this._getVersionUploadDialogControl("attachmentDetailVersionNoPreviewText");
+            var oPreviewBox = this._getVersionUploadDialogControl("attachmentDetailVersionContentPreviewBox");
+            var oPreviewFileBox = this._getVersionUploadDialogControl("attachmentDetailVersionFilePreviewBox");
+            var oFileUploader = this._getVersionUploadDialogControl("attachmentDetailVersionFileUploader");
+
+            if (oPreviewImage) {
+                oPreviewImage.setContent("");
+                oPreviewImage.setVisible(false);
+            }
+
+            if (oPreviewNoText) {
+                oPreviewNoText.setVisible(false);
+            }
+
+            if (oPreviewBox) {
+                oPreviewBox.setVisible(false);
+            }
+
+            if (oPreviewFileBox) {
+                oPreviewFileBox.setVisible(false);
+            }
+
+            if (oFileUploader) {
+                oFileUploader.clear();
+            }
+        },
+
+        onUploadVersion: function () {
+            this._loadVersionUploadDialog().then(function (oDialog) {
+                this._resetVersionUploadState();
+                oDialog.open();
+            }.bind(this));
+        },
+
+        onVersionUploadDialogCancel: function () {
+            if (this._oVersionUploadDialog) {
+                this._oVersionUploadDialog.close();
+            }
+            this._resetVersionUploadState();
+        },
+
+        onVersionDropZoneRendered: function () {
+            var that = this;
+            var oDropZone = document.getElementById("versionDropZone");
+
+            if (!oDropZone || oDropZone.dataset.bound === "true") {
+                return;
+            }
+
+            oDropZone.dataset.bound = "true";
+
+            ["dragenter", "dragover", "dragleave", "drop"].forEach(function (sEventName) {
+                oDropZone.addEventListener(sEventName, function (oEvent) {
+                    oEvent.preventDefault();
+                    oEvent.stopPropagation();
+                }, false);
+            });
+
+            ["dragenter", "dragover"].forEach(function (sEventName) {
+                oDropZone.addEventListener(sEventName, function () {
+                    oDropZone.classList.add("dragOver");
+                }, false);
+            });
+
+            ["dragleave", "drop"].forEach(function (sEventName) {
+                oDropZone.addEventListener(sEventName, function () {
+                    oDropZone.classList.remove("dragOver");
+                }, false);
+            });
+
+            oDropZone.addEventListener("drop", function (oEvent) {
+                var aFiles = oEvent.dataTransfer && oEvent.dataTransfer.files;
+
+                if (aFiles && aFiles.length > 0) {
+                    that._handleVersionFile(aFiles[0]);
+                }
+            }, false);
+
+            oDropZone.addEventListener("click", function () {
+                var oFileUploader = that._getVersionUploadDialogControl("versionFileUploader");
+                var oInput = oFileUploader && oFileUploader.$().find("input[type=file]")[0];
+
+                if (oInput) {
+                    oInput.click();
+                }
+            }, false);
+        },
+
+        onVersionFileChange: function (oEvent) {
+            var oFile = oEvent.getParameter("files") && oEvent.getParameter("files")[0];
+
+            if (oFile) {
+                this._handleVersionFile(oFile);
+            }
+        },
+
+        onVersionRemoveFile: function () {
+            this._resetVersionUploadState();
+        },
+
+        onVersionFilePreviewRendered: function () {
+            this._updateVersionFilePreview();
+            this._updateVersionContentPreview();
+        },
+
+        _handleVersionFile: function (oFile) {
+            var oModel = this._oVersionUploadModel;
+            var sFileName = oFile.name || "";
+            var aParts = sFileName.split(".");
+            var sFileExtension = aParts.length > 1 ? aParts.pop() : "";
+            var sMimeType = oFile.type || "application/octet-stream";
+
+            if (oFile.size > 10485760) {
+                MessageBox.error("File size exceeds maximum allowed size of 10MB");
+                return;
+            }
+
+            this._oVersionFile = oFile;
+            oModel.setProperty("/FileName", sFileName);
+            oModel.setProperty("/FileExtension", sFileExtension);
+            oModel.setProperty("/MimeType", sMimeType);
+            oModel.setProperty("/FileSize", oFile.size);
+
+            this._updateVersionFilePreview();
+
+            if (oModel.getProperty("/FileName")) {
+                var oFilePreviewBox = this._getVersionUploadDialogControl("attachmentDetailVersionFilePreviewBox");
+                if (oFilePreviewBox) {
+                    oFilePreviewBox.setVisible(true);
+                }
+            }
+
+            var oReader = new FileReader();
+
+            oReader.onload = function (oEvent) {
+                var sDataUrl = oEvent.target.result || "";
+                var sBase64 = sDataUrl.indexOf(",") > -1 ? sDataUrl.split(",")[1] : sDataUrl;
+
+                oModel.setProperty("/FileContent", sBase64);
+                this._oVersionPreviewDataUrl = sDataUrl;
+                this._oVersionPreviewMimeType = sMimeType;
+                this._updateVersionContentPreview();
+            }.bind(this);
+
+            oReader.onerror = function () {
+                MessageBox.error("Error reading selected file");
+            };
+
+            oReader.readAsDataURL(oFile);
+        },
+
+        _updateVersionFilePreview: function () {
+            var oModel = this._oVersionUploadModel;
+
+            setTimeout(function () {
+                var oFileName = document.getElementById("versionPreviewFileName");
+                var oFileDetails = document.getElementById("versionPreviewFileDetails");
+
+                if (oFileName) {
+                    oFileName.textContent = oModel.getProperty("/FileName") || "";
+                }
+
+                if (oFileDetails) {
+                    var sDetails = (oModel.getProperty("/FileExtension") || "") + " • " + this._formatFileSize(oModel.getProperty("/FileSize") || 0);
+                    oFileDetails.textContent = sDetails;
+                }
+            }.bind(this), 50);
+        },
+
+        _updateVersionContentPreview: function () {
+            var oPreviewBox = this._getVersionUploadDialogControl("versionContentPreviewBox");
+            var oImagePreview = this._getVersionUploadDialogControl("versionImagePreview");
+            var oNoPreviewText = this._getVersionUploadDialogControl("versionNoPreviewText");
+            var sDataUrl = this._oVersionPreviewDataUrl || "";
+            var sMimeType = (this._oVersionPreviewMimeType || "").toLowerCase();
+
+            if (!oPreviewBox || !oImagePreview || !oNoPreviewText) {
+                return;
+            }
+
+            if (!sDataUrl) {
+                oPreviewBox.setVisible(false);
+                oImagePreview.setVisible(false);
+                oNoPreviewText.setVisible(false);
+                return;
+            }
+
+            oPreviewBox.setVisible(true);
+
+            if (sMimeType.indexOf("image/") === 0) {
+                oImagePreview.setContent("<img src='" + sDataUrl + "' style='max-width:100%; max-height:220px;' />");
+                oImagePreview.setVisible(true);
+                oNoPreviewText.setVisible(false);
+            } else {
+                oImagePreview.setContent("");
+                oImagePreview.setVisible(false);
+                oNoPreviewText.setVisible(true);
+            }
+        },
+
+        _formatFileSize: function (iSize) {
+            var iBytes = Number(iSize || 0);
+
+            if (iBytes >= 1073741824) {
+                return (iBytes / 1073741824).toFixed(2) + " GB";
+            }
+
+            if (iBytes >= 1048576) {
+                return (iBytes / 1048576).toFixed(2) + " MB";
+            }
+
+            if (iBytes >= 1024) {
+                return (iBytes / 1024).toFixed(2) + " KB";
+            }
+
+            return iBytes + " B";
+        },
+
+        onUploadVersionConfirm: function () {
+            var oViewModel = this.getView().getModel("view");
+            var oUploadModel = this._oVersionUploadModel;
+            var sFileId = oViewModel.getProperty("/FileId");
+            var oPayload;
+
+            if (!sFileId) {
+                MessageBox.error("Missing FileId for upload");
+                return;
+            }
+
+            if (!oUploadModel.getProperty("/FileContent")) {
+                MessageBox.error("Please select a file before uploading");
+                return;
+            }
+
+            oUploadModel.setProperty("/busy", true);
+            if (this._oVersionUploadDialog) {
+                this._oVersionUploadDialog.setBusy(true);
+            }
+
+            oPayload = {
+                FileId: sFileId,
+                FileName: oUploadModel.getProperty("/FileName"),
+                FileExtension: oUploadModel.getProperty("/FileExtension"),
+                MimeType: oUploadModel.getProperty("/MimeType"),
+                FileSize: oUploadModel.getProperty("/FileSize"),
+                FileContent: oUploadModel.getProperty("/FileContent")
+            };
+
+            this._sendPostRequest(this._getAttachmentVersionsCollectionUrl(), oPayload).then(function () {
+                MessageToast.show("New version uploaded successfully");
+                if (this._oVersionUploadDialog) {
+                    this._oVersionUploadDialog.close();
+                }
+                this._resetVersionUploadState();
+                this._loadAttachmentDetail(sFileId);
+            }.bind(this)).catch(function (oError) {
+                MessageBox.error("Failed to upload version: " + oError.message);
+            }.bind(this)).finally(function () {
+                oUploadModel.setProperty("/busy", false);
+                if (this._oVersionUploadDialog) {
+                    this._oVersionUploadDialog.setBusy(false);
+                }
+            }.bind(this));
+        },
+
+        _getAttachmentVersionsCollectionUrl: function () {
+            return ATTACH_SERVICE_ROOT + "/AttachmentVersions?sap-client=" + SAP_CLIENT;
+        },
+
         _applyAttachmentData: function (oAttachment, sFileId) {
             var oViewModel = this.getView().getModel("view");
             var oData = oAttachment || {};
@@ -229,6 +571,23 @@ sap.ui.define([
             oViewModel.setProperty("/VersionNo", oData.VersionNo || oData.CurrentVersion || "");
         },
 
+        _applyCurrentVersionData: function (oCurrentVersion, oAttachment) {
+            var oViewModel = this.getView().getModel("view");
+            var oCurrent = oCurrentVersion || {};
+            var oBase = oAttachment || {};
+
+            if (!oCurrent || Object.keys(oCurrent).length === 0) {
+                return;
+            }
+
+            oViewModel.setProperty("/CurrentVersion", oCurrent.VersionNo || oBase.CurrentVersion || oBase.VersionNo || "");
+            oViewModel.setProperty("/VersionNo", oCurrent.VersionNo || oBase.VersionNo || oBase.CurrentVersion || "");
+            oViewModel.setProperty("/FileName", oCurrent.FileName || oBase.FileName || "");
+            oViewModel.setProperty("/FileExtension", oCurrent.FileExtension || oBase.FileExtension || "");
+            oViewModel.setProperty("/MimeType", oCurrent.MimeType || oBase.MimeType || "");
+            oViewModel.setProperty("/FileSize", oCurrent.FileSize || oBase.FileSize || 0);
+        },
+
         _applyVersionFallbackData: function (oVersion, sFileId) {
             var oViewModel = this.getView().getModel("view");
             var oData = oVersion || {};
@@ -248,7 +607,7 @@ sap.ui.define([
         },
 
         _getAttachmentById: function (sFileId) {
-            return this._sendGetRequest(this._getAttachmentUrl(sFileId)).then(function (oData) {
+            return this._sendGetRequest(this._getAttachmentWithCurrentVersionUrl(sFileId)).then(function (oData) {
                 if (oData && !oData.error) {
                     return oData;
                 }
@@ -263,6 +622,10 @@ sap.ui.define([
 
         _getAttachmentUrl: function (sFileId) {
             return this._buildUrl("/Attachments(FileId=" + sFileId + ")");
+        },
+
+        _getAttachmentWithCurrentVersionUrl: function (sFileId) {
+            return ATTACH_SERVICE_ROOT + "/Attachments(FileId=" + sFileId + ")?sap-client=" + SAP_CLIENT + "&$expand=_CurrentVersion";
         },
 
         _getVersionsUrl: function (sFileId) {
@@ -430,6 +793,46 @@ sap.ui.define([
             });
         },
 
+        _sendPatchRequest: function (sUrl, oBody) {
+            return this._fetchCsrfToken().then(function (sToken) {
+                console.log("📍 PATCH URL:", sUrl);
+                console.log("📍 PATCH BODY:", oBody);
+
+                return fetch(sUrl, {
+                    method: "PATCH",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": sToken
+                    },
+                    body: JSON.stringify(oBody || {})
+                });
+            }).then(function (oResponse) {
+                if (!oResponse.ok) {
+                    return oResponse.text().then(function (sText) {
+                        throw new Error(sText || ("Request failed with status " + oResponse.status));
+                    });
+                }
+
+                if (oResponse.status === 204) {
+                    return null;
+                }
+
+                var sContentType = (oResponse.headers.get("content-type") || "").toLowerCase();
+
+                if (sContentType.indexOf("application/json") !== -1) {
+                    return oResponse.text().then(function (sText) {
+                        return sText ? JSON.parse(sText) : {};
+                    });
+                }
+
+                return oResponse.text().then(function (sText) {
+                    return sText ? JSON.parse(sText) : null;
+                });
+            });
+        },
+
         _sendDeleteRequest: function (sUrl, sServiceRoot) {
             return this._fetchCsrfToken(sServiceRoot).then(function (sToken) {
                 console.log("📍 DELETE URL:", sUrl);
@@ -493,7 +896,36 @@ sap.ui.define([
         },
 
         onSetCurrent: function () {
-            MessageToast.show("Set current version action");
+            var oView = this.getView();
+            var oViewModel = oView.getModel("view");
+            var oVersionsTable = oView.byId("versionsTable");
+            var oSelectedItem = oVersionsTable && oVersionsTable.getSelectedItem();
+            var oSelectedContext = oSelectedItem && oSelectedItem.getBindingContext("view");
+            var sSelectedVersion = oSelectedContext && oSelectedContext.getProperty("VersionNo");
+            var sFileId = oViewModel.getProperty("/FileId");
+
+            if (!sFileId) {
+                MessageBox.error("Missing FileId for updating current version");
+                return;
+            }
+
+            if (!sSelectedVersion) {
+                MessageBox.error("Please select a version first");
+                return;
+            }
+
+            oViewModel.setProperty("/busy", true);
+
+            this._sendPatchRequest(this._getAttachmentUrl(sFileId), {
+                CurrentVersion: String(sSelectedVersion)
+            }).then(function () {
+                MessageToast.show("Current version updated");
+                return this._loadAttachmentDetail(sFileId);
+            }.bind(this)).catch(function (oError) {
+                MessageBox.error("Failed to set current version: " + oError.message);
+            }.bind(this)).finally(function () {
+                oViewModel.setProperty("/busy", false);
+            });
         },
 
         onDelete: function () {
@@ -541,7 +973,148 @@ sap.ui.define([
         },
 
         onAddLink: function () {
-            MessageToast.show("Add link action");
+            this._openLinkBoSearchHelpDialog("");
+        },
+
+        _openLinkBoSearchHelpDialog: function (sSearchText) {
+            var oView = this.getView();
+
+            if (!this._oLinkBoSearchModel) {
+                this._oLinkBoSearchModel = new JSONModel({
+                    items: []
+                });
+            }
+
+            if (!this._oLinkBoSearchDialog) {
+                this._oLinkBoSearchDialog = new SelectDialog({
+                    title: "Select BO Type",
+                    rememberSelections: false,
+                    search: this.onLinkBoSearchHelpSearch.bind(this),
+                    liveChange: this.onLinkBoSearchHelpSearch.bind(this),
+                    confirm: this.onLinkBoSearchHelpConfirm.bind(this),
+                    cancel: this.onLinkBoSearchHelpCancel.bind(this),
+                    items: {
+                        path: "boSearch>/items",
+                        template: new StandardListItem({
+                            title: "{boSearch>BoType}",
+                            description: "{boSearch>Description}"
+                        })
+                    }
+                });
+
+                this._oLinkBoSearchDialog.setModel(this._oLinkBoSearchModel, "boSearch");
+                oView.addDependent(this._oLinkBoSearchDialog);
+            }
+
+            this._loadLinkBoSearchResults(sSearchText).then(function () {
+                this._oLinkBoSearchDialog.open(sSearchText || "");
+            }.bind(this));
+        },
+
+        onLinkBoSearchHelpSearch: function (oEvent) {
+            this._loadLinkBoSearchResults(oEvent.getParameter("value") || "");
+        },
+
+        onLinkBoSearchHelpConfirm: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            var oContext;
+            var oSelectedBizObject;
+
+            if (!oSelectedItem) {
+                return;
+            }
+
+            oContext = oSelectedItem.getBindingContext("boSearch");
+            oSelectedBizObject = oContext && oContext.getObject();
+
+            if (oSelectedBizObject) {
+                this._linkAttachmentToBo(oSelectedBizObject);
+            }
+        },
+
+        onLinkBoSearchHelpCancel: function () {
+            return;
+        },
+
+        _loadLinkBoSearchResults: function (sSearchText) {
+            var oViewModel = this.getView().getModel("view");
+
+            oViewModel.setProperty("/busy", true);
+
+            return this._sendGetRequest(this._getBizObjectCollectionUrl(sSearchText, 30), BIZ_OBJECT_SERVICE_ROOT).then(function (oResult) {
+                var aItems = (oResult && oResult.value ? oResult.value : []).map(function (oBizObject) {
+                    return this._mapBizObject(oBizObject);
+                }.bind(this));
+
+                this._oLinkBoSearchModel.setProperty("/items", aItems);
+            }.bind(this)).catch(function (oError) {
+                this._oLinkBoSearchModel.setProperty("/items", []);
+                MessageBox.error("Failed to search business objects: " + this._extractErrorMessage(oError));
+            }.bind(this)).finally(function () {
+                oViewModel.setProperty("/busy", false);
+            });
+        },
+
+        _mapBizObject: function (oBizObject) {
+            var sBoId = oBizObject.bo_id || oBizObject.BoId || oBizObject.BOId || oBizObject.Boid || "";
+            var sBoType = oBizObject.BoType || oBizObject.BO_TYPE || oBizObject.BOTYPE || oBizObject.Type || sBoId;
+            var sDescription = oBizObject.Description || oBizObject.BoDescription || oBizObject.BO_DESCRIPTION || "";
+
+            return {
+                BoId: sBoId,
+                BoType: sBoType,
+                Description: sDescription,
+                Selected: false
+            };
+        },
+
+        _getBizObjectCollectionUrl: function (sSearchText, iTop) {
+            var iResultTop = iTop || 30;
+            var sSearch = String(sSearchText || "").trim();
+            var sUrl = BIZ_OBJECT_SERVICE_ROOT + "/BizObject?sap-client=" + SAP_CLIENT + "&$top=" + iResultTop;
+
+            if (sSearch) {
+                sUrl += "&$filter=" + encodeURIComponent("contains(BoType,'" + this._escapeODataValue(sSearch) + "')");
+            }
+
+            return sUrl;
+        },
+
+        _escapeODataValue: function (sValue) {
+            return String(sValue || "").replace(/'/g, "''");
+        },
+
+        _getLinkToBoUrl: function (sFileId) {
+            return BIZ_OBJECT_SERVICE_ROOT + "/Attachment(FileId=" + sFileId + ")/SAP__self.link_to_bo?sap-client=" + SAP_CLIENT;
+        },
+
+        _linkAttachmentToBo: function (oBizObject) {
+            var oViewModel = this.getView().getModel("view");
+            var sFileId = oViewModel.getProperty("/FileId");
+            var sBoId = oBizObject && oBizObject.BoId;
+
+            if (!sFileId) {
+                MessageBox.error("Missing FileId for linking");
+                return Promise.resolve();
+            }
+
+            if (!sBoId) {
+                MessageBox.error("Missing BO ID for linking");
+                return Promise.resolve();
+            }
+
+            oViewModel.setProperty("/busy", true);
+
+            return this._sendPostRequest(this._getLinkToBoUrl(sFileId), {
+                bo_id: sBoId
+            }).then(function () {
+                MessageToast.show("Link added successfully");
+                return this._loadLinkedObjects(sFileId);
+            }.bind(this)).catch(function (oError) {
+                MessageBox.error("Failed to add link: " + oError.message);
+            }.bind(this)).finally(function () {
+                oViewModel.setProperty("/busy", false);
+            });
         },
 
         onRemoveLink: function (oEvent) {

@@ -10,9 +10,9 @@
                         <ObjectAttribute id="_IDGenObjectAttribute2" text="Created: {view>/Erdat}" />
                         <ObjectAttribute id="_IDGenObjectAttribute3" text="Last Modified: {view>/Aedat}" />
                     </attributes>
-                    <firstStatus>
+                    <statuses>
                         <ObjectStatus id="_IDGenObjectStatus" text="{view>/IsActive}" state="Success" />
-                    </firstStatus>
+                    </statuses>
                 </ObjectHeader>
             </VBox>
 
@@ -79,22 +79,17 @@
                                 </content>
                             </Panel>
 
-                            <!-- Actions Panel -->
-                            <Panel id="actionsPanel" headerText="Actions" expandable="false">
-                                <content>
-                                    <HBox id="_IDGenHBox9" class="sapUiSmallMargin" justifyContent="Start" renderType="Bare">
-                                        <Button id="downloadBtn" text="Download" icon="sap-icon://download" press=".onDownloadAttachment" class="sapUiSmallMarginEnd" />
-                                        <Button id="setCurrentBtn" text="Set Current" icon="sap-icon://accept" press=".onSetCurrent" class="sapUiSmallMarginEnd" />
-                                        
-                                    </HBox>
-                                </content>
-                            </Panel>
                         </VBox>
                     </IconTabFilter>
 
                     <!-- Versions Tab -->
                     <IconTabFilter id="versionsTab" text="Versions" icon="sap-icon://history" count="{view>/versions/length}">
                         <VBox id="_IDGenVBox13" class="sapUiSmallMargin">
+                            <HBox id="_IDGenHBox9" class="sapUiSmallMarginBottom" justifyContent="Start" renderType="Bare">
+                              
+                                <Button id="setCurrentBtn" text="Set Current" icon="sap-icon://accept" press=".onSetCurrent" class="sapUiSmallMarginEnd" />
+                                <Button id="uploadVersionBtn" text="Upload Version" icon="sap-icon://upload" press=".onUploadVersion" class="sapUiSmallMarginEnd" />
+                            </HBox>
                             <Table id="versionsTable" items="{view>/versions}" mode="SingleSelect" class="sapUiResponsiveMargin">
                                 <columns>
                                     <Column id="_IDGenColumn6" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
