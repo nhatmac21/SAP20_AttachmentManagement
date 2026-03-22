@@ -1,0 +1,208 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" controllerName="zattach.zattachfe.controller.AttachmentDetail" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core" xmlns="sap.m" displayBlock="true">
+    <Page id="attachmentDetailPage" title="Attachment Detail" navButtonPress=".onNavBack" showNavButton="true" class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- Header Section with Key Info -->
+            <VBox id="_IDGenVBox11" class="sapUiSmallMarginBottom">
+                <ObjectHeader id="attachmentHeader" title="{view>/Title}" number="{view>/FileSize}" numberUnit="Bytes">
+                    <attributes>
+                        <ObjectAttribute id="_IDGenObjectAttribute" text="File ID: {view>/FileId}" />
+                        <ObjectAttribute id="_IDGenObjectAttribute1" text="Version: {view>/CurrentVersion}" />
+                        <ObjectAttribute id="_IDGenObjectAttribute2" text="Created: {view>/Erdat}" />
+                        <ObjectAttribute id="_IDGenObjectAttribute3" text="Last Modified: {view>/Aedat}" />
+                    </attributes>
+                    <statuses>
+                        <ObjectStatus id="_IDGenObjectStatus" text="{view>/IsActive}" state="Success" />
+                    </statuses>
+                </ObjectHeader>
+            </VBox>
+
+            <!-- Tab Navigation -->
+            <IconTabBar id="attachmentTabs" class="sapUiResponsiveMargin">
+                <!-- Details Tab -->
+                <items>
+                    <IconTabFilter id="detailsTab" text="Details" icon="sap-icon://document">
+                        <VBox id="_IDGenVBox12" class="sapUiSmallMargin">
+                            <!-- File Information Panel -->
+                            <Panel id="fileInfoPanel" headerText="File Information" expandable="false" class="sapUiMediumMarginBottom">
+                                <content>
+                                    <f:SimpleForm id="fileForm" editable="false" layout="ResponsiveGridLayout">
+                                        <f:content>
+                                            <Label id="_IDGenLabel13" text="File Name" />
+                                            <Text id="_IDGenText17" text="{view>/FileName}" />
+
+                                            <Label id="_IDGenLabel14" text="File Extension" />
+                                            <Text id="_IDGenText18" text="{view>/FileExtension}" />
+
+                                            <Label id="_IDGenLabel15" text="MIME Type" />
+                                            <Text id="_IDGenText19" text="{view>/MimeType}" />
+
+                                            <Label id="_IDGenLabel16" text="File Size" />
+                                            <Text id="_IDGenText20" text="{view>/FileSize}" />
+
+                                            <Label id="_IDGenLabel17" text="Title" />
+                                            <Text id="_IDGenText21" text="{view>/Title}" />
+
+                                            <Label id="_IDGenLabel18" text="Version" />
+                                            <Text id="_IDGenText22" text="{view>/CurrentVersion}" />
+                                        </f:content>
+                                    </f:SimpleForm>
+                                </content>
+                            </Panel>
+
+                            <!-- Audit Information Panel -->
+                            <Panel id="auditInfoPanel" headerText="Audit Information" expandable="false" class="sapUiMediumMarginBottom">
+                                <content>
+                                    <f:SimpleForm id="auditForm" editable="false" layout="ResponsiveGridLayout">
+                                        <f:content>
+                                            <Label id="_IDGenLabel19" text="Created By" />
+                                            <Text id="_IDGenText23" text="{view>/Ernam}" />
+
+                                            <Label id="_IDGenLabel20" text="Created Date" />
+                                            <Text id="_IDGenText24" text="{view>/Erdat}" />
+
+                                            <Label id="_IDGenLabel21" text="Created Time" />
+                                            <Text id="_IDGenText25" text="{view>/Erzet}" />
+
+                                            <Label id="_IDGenLabel22" text="Modified By" />
+                                            <Text id="_IDGenText26" text="{view>/Aenam}" />
+
+                                            <Label id="_IDGenLabel23" text="Modified Date" />
+                                            <Text id="_IDGenText27" text="{view>/Aedat}" />
+
+                                            <Label id="_IDGenLabel24" text="Modified Time" />
+                                            <Text id="_IDGenText28" text="{view>/Aezet}" />
+
+                                            <Label id="_IDGenLabel25" text="Edit Lock" />
+                                            <Text id="_IDGenText29" text="{view>/EditLock}" />
+                                        </f:content>
+                                    </f:SimpleForm>
+                                </content>
+                            </Panel>
+
+                        </VBox>
+                    </IconTabFilter>
+
+                    <!-- Versions Tab -->
+                    <IconTabFilter id="versionsTab" text="Versions" icon="sap-icon://history" count="{view>/versions/length}">
+                        <VBox id="_IDGenVBox13" class="sapUiSmallMargin">
+                            <HBox id="_IDGenHBox9" class="sapUiSmallMarginBottom" justifyContent="Start" renderType="Bare">
+                              
+                                <Button id="setCurrentBtn" text="Set Current" icon="sap-icon://accept" press=".onSetCurrent" class="sapUiSmallMarginEnd" />
+                                <Button id="uploadVersionBtn" text="Upload Version" icon="sap-icon://upload" press=".onUploadVersion" class="sapUiSmallMarginEnd" />
+                            </HBox>
+                            <Table id="versionsTable" items="{view>/versions}" mode="SingleSelect" class="sapUiResponsiveMargin">
+                                <columns>
+                                    <Column id="_IDGenColumn6" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText30" text="Version" />
+                                    </Column>
+                                    <Column id="_IDGenColumn7" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText31" text="File Name" />
+                                    </Column>
+                                    <Column id="_IDGenColumn8" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText32" text="Size (Bytes)" />
+                                    </Column>
+                                    <Column id="_IDGenColumn9" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText33" text="Created By" />
+                                    </Column>
+                                    <Column id="_IDGenColumn10" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText34" text="Date" />
+                                    </Column>
+                                    <Column id="_IDGenColumn11" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText35" text="Action" />
+                                    </Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem id="_IDGenColumnListItem1">
+                                        <cells>
+                                            <Text id="_IDGenText36" text="{view>VersionNo}" />
+                                            <Text id="_IDGenText37" text="{view>FileName}" />
+                                            <Text id="_IDGenText38" text="{view>FileSize}" />
+                                            <Text id="_IDGenText39" text="{view>Ernam}" />
+                                            <Text id="_IDGenText40" text="{view>Erdat}" />
+                                            <Button id="_IDGenButton3" text="Download" press=".onDownloadVersion" type="Transparent" icon="sap-icon://download" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+                    </IconTabFilter>
+
+                    <!-- Audit Trail Tab -->
+                    <IconTabFilter id="auditTab" text="Audit Trail" icon="sap-icon://list">
+                        <VBox id="_IDGenVBox14" class="sapUiSmallMargin">
+                            <Table id="auditTable" items="{view>/auditTrail}" mode="None" class="sapUiResponsiveMargin">
+                                <columns>
+                                    <Column id="_IDGenColumn12" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText41" text="Action" />
+                                    </Column>
+                                    <Column id="_IDGenColumn13" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText42" text="Created By" />
+                                    </Column>
+                                    <Column id="_IDGenColumn14" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText43" text="Date" />
+                                    </Column>
+                                    <Column id="_IDGenColumn15" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText44" text="Time" />
+                                    </Column>
+                                    <Column id="_AuditNoteColumn" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_AuditNoteHeader" text="Note" />
+                                    </Column>
+                                    <Column id="_AuditUserColumn" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_AuditUserHeader" text="User" />
+                                    </Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem id="_IDGenColumnListItem2">
+                                        <cells>
+                                            <Text id="_IDGenText45" text="{view>Action}" />
+                                            <Text id="_IDGenText46" text="{view>CreatedBy}" />
+                                            <Text id="_IDGenText47" text="{view>Date}" />
+                                            <Text id="_IDGenText48" text="{view>Time}" />
+                                            <Text id="_AuditNoteValue" text="{view>Note}" />
+                                            <Text id="_AuditUserValue" text="{view>UserName}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+                    </IconTabFilter>
+
+                    <!-- Link BO Tab -->
+                    <IconTabFilter id="linkBoTab" text="Linked Objects" icon="sap-icon://chain-link" count="{view>/linkBo/length}">
+                        <VBox id="_IDGenVBox15" class="sapUiSmallMargin">
+                            <Table id="linkBoTable" items="{view>/linkBo}" mode="None" class="sapUiResponsiveMargin" noDataText="No linked business objects">
+                                <columns>
+                                    <Column id="_IDGenColumn16" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText49" text="BO ID" />
+                                    </Column>
+                                    <Column id="_IDGenColumn17" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText50" text="Title" />
+                                    </Column>
+                                    <Column id="_IDGenColumn18" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText51" text="Type" />
+                                    </Column>
+                                    <Column id="_IDGenColumn19" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                        <Text id="_IDGenText52" text="Action" />
+                                    </Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem id="_IDGenColumnListItem3">
+                                        <cells>
+                                            <Text id="_IDGenText53" text="{view>BoId}" />
+                                            <Text id="_IDGenText54" text="{view>Title}" />
+                                            <Text id="_IDGenText55" text="{view>BoType}" />
+                                            <Button id="_IDGenButton4" text="Remove" press=".onRemoveLink" type="Transparent" icon="sap-icon://delete" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                            <VBox id="_IDGenVBox16" class="sapUiSmallMargin">
+                                <Button id="_IDGenButton5" text="Add Link" press=".onAddLink" icon="sap-icon://add" type="Emphasized" />
+                            </VBox>
+                        </VBox>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+    </Page>
+</mvc:View>

@@ -94,8 +94,8 @@
         "settings": {
           "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true,
-          "earlyRequests": true
+          "autoExpandSelect": false,
+          "earlyRequests": false
         }
       },
       "@i18n": {
@@ -147,6 +147,13 @@
           "target": [
             "AttachmentListList",
             "AttachmentListObjectPage"
+          ]
+        },
+        {
+          "name": "AttachmentDetail",
+          "pattern": "attachment/{id}",
+          "target": [
+            "AttachmentDetail"
           ]
         }
       ],
@@ -210,6 +217,12 @@
               }
             }
           }
+        },
+        "AttachmentDetail": {
+          "type": "View",
+          "id": "attachmentDetailView",
+          "name": "zattach.zattachfe.view.AttachmentDetail",
+          "level": 2
         }
       }
     }

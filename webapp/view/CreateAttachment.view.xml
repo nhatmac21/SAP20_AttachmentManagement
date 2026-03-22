@@ -123,42 +123,17 @@
 
                 <Panel id="createAttachmentStep2Panel" headerText="Step 2: Link Attachment With Business Object" class="sapUiSmallMarginTop" expandable="false">
                     <content>
-                        <VBox id="boSelectionContainer" class="sapUiSmallMargin">
-                            <HBox id="boSelectionToolbar" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
-                                <Text id="boSelectionHint" text="Select one BO type. The app will link attachment to the selected business object right after upload."/>
-                                <Button
-                                    id="refreshBizObjectButton"
-                                    text="Refresh BO List"
-                                    icon="sap-icon://refresh"
-                                    press="onRefreshBizObjects"
-                                    enabled="{= !${upload>/busy} &amp;&amp; !${bo>/busy}}"/>
-                            </HBox>
-
-                            <List
-                                id="boSelectionList"
-                                class="sapUiSmallMarginTop"
-                                items="{bo>/items}"
-                                mode="None"
-                                noDataText="No business objects available"
-                                busy="{bo>/busy}"
-                                growing="true"
-                                growingScrollToLoad="true">
-                                <items>
-                                    <CustomListItem id="boSelectionItem">
-                                        <HBox id="boSelectionRow" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap">
-                                            <VBox id="boSelectionTextContainer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                                                <Title id="boTypeTitle" text="{bo>BoType}" level="H5"/>
-                                                <Text id="boDescriptionText" text="{bo>Description}" visible="{= !!${bo>Description}}"/>
-                                            </VBox>
-                                            <CheckBox
-                                                id="boSelectCheckbox"
-                                                selected="{bo>Selected}"
-                                                select="onBizObjectSelect"/>
-                                        </HBox>
-                                    </CustomListItem>
-                                </items>
-                            </List>
-
+                        <VBox id="boSelectionContainer" class="sapUiSmallMargin sapUiSmallMarginBottom">
+                            <Text id="boSelectionHint" text="Select BO Type using search help to keep the screen fast for large data."/>
+                            <Label id="boTypeSelectLabel" text="BO Type" class="sapUiSmallMarginTop" required="true"/>
+                            <Input
+                                id="boTypeInput"
+                                value="{bo>/selectedBoType}"
+                                placeholder="Choose BO Type"
+                                showValueHelp="true"
+                                valueHelpOnly="true"
+                                valueHelpRequest="onOpenBoSearchHelp"
+                                editable="{= !${upload>/busy}}"/>
                             <ObjectStatus
                                 id="selectedBoStatus"
                                 class="sapUiSmallMarginTop"
